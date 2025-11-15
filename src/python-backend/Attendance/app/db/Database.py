@@ -63,7 +63,7 @@ class Database:
             cls._engine = None
             cls._session_factory = None
     
-# Function used by services
+# Function used by services to get a session
 async def get_db():
     SessionLocal = Database.get_session_factory()
     async with SessionLocal() as session:

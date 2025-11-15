@@ -5,7 +5,7 @@ from app.db.Database import Base
 class Attendance(Base):
     __tablename__ = "Attendance"
 
-    attendanceID: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    attendanceID: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
     nameAttendance: Mapped[str] = mapped_column(String(100), nullable=False)
     emailAttendance: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     contactNumber: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
