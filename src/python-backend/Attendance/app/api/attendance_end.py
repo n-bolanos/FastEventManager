@@ -21,7 +21,8 @@ async def confirm_attendance(confirmation: AttendanceService, capacity: int):
     
     Remember to give the capacity of the event using the query parameter capacity.
     '''
-    if capacity > AttendanceService.getNumberOfAttendances(confirmation.event_assistance_id):
+    current = await AttendanceService.getNumberOfAttendances(confirmation.event_assistance_id)
+    if capacity < current:
         confirmation.waitlist = True
     new_attendance = await confirmation.confirmAttendace()
     return {"attendance": new_attendance}
