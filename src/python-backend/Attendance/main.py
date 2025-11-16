@@ -1,13 +1,14 @@
 '''
 Main entry poit for the Attendance microservice
 '''
-import asyncio
 from fastapi import FastAPI
+from uvicorn import run
 from app.api.attendance_end import router as attendance_router
 from contextlib import asynccontextmanager
 from app.db.Database import Database
 import app.models.Attendance # Load the model so it associated table can be created
 from app.services import AttendanceService
+
 @asynccontextmanager
 async def startup(app: FastAPI):
     '''
@@ -26,3 +27,11 @@ app.include_router(attendance_router, prefix="/attendance", tags=["Attendance"])
 @app.get("/")
 def health_check():
     return {"status": "ok"}
+
+if __name__ == "__main__":
+    run(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
