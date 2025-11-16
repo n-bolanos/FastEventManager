@@ -14,5 +14,5 @@ class Attendance(Base):
     eventAssistanceID: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
 
     def __repr__(self) -> str:
-        return f"<Attendance(id={self.attendance_id} name={self.name!r} email={self.email!r})>"
+        return f"<Attendance(id={self.attendanceID} name={self.nameAttendance} email={self.emailAttendance})>"
     

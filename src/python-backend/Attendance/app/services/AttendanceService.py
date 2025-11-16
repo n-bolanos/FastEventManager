@@ -3,8 +3,8 @@ Contains the actual class for operations on the Attendance model.
 '''
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
-from Attendance.app.db.Database import get_db
-from Attendance.app.models.Attendance import Attendance
+from app.db.Database import get_db
+from app.models.Attendance import Attendance
 
 
 class AttendanceService(BaseModel):
@@ -17,7 +17,7 @@ class AttendanceService(BaseModel):
     email:EmailStr
     contact_number:str
     doc_id:str
-    waitlist:bool|None = None
+    waitlist:bool|None = False
     event_assistance_id:int
 
     async def confirmAttendace(self):
@@ -26,12 +26,12 @@ class AttendanceService(BaseModel):
         '''
         async for db in get_db():
             new_attendance = Attendance(
-                name=self.name,
-                email=self.email,
-                contact_number=self.contact_number,
-                doc_id=self.doc_id,
-                waitlist=self.waitlist,
-                event_assistance_id=self.event_assistance_id
+                nameAttendance = self.name,
+                emailAttendance = self.email,
+                contactNumber = self.contact_number,
+                documentID = self.doc_id,
+                waitlist = self.waitlist,
+                eventAssistanceID =self.event_assistance_id
             )
             db.add(new_attendance)
             await db.commit()
@@ -46,5 +46,19 @@ class AttendanceService(BaseModel):
         async for db in get_db():
             stmt = select(Attendance).where(Attendance.eventAssistanceID == event_id)
             result = await db.execute(stmt)
-            attendance = result.scalar_one_or_none()  # retorna objeto o None
-            return attendance
+            attendance = result.scalars().all()  # return objects or None
+            if attendance is None:
+                return []
+            return [ AttendanceService.jsonify(attendance) for attendance in attendance]
+
+    @staticmethod
+    def jsonify(attendance):
+        return {
+            "attendanceID": attendance.attendanceID,
+            "nameAttendance": attendance.nameAttendance,
+            "emailAttendance": attendance.emailAttendance,
+            "contactNumber": attendance.contactNumber,
+            "documentID": attendance.documentID,
+            "waitlist": attendance.waitlist,
+            "eventAssistanceID": attendance.eventAssistanceID
+        }
