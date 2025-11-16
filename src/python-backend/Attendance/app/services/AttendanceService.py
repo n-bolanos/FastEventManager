@@ -2,7 +2,7 @@
 Contains the actual class for operations on the Attendance model.
 '''
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import select
+from sqlalchemy import select, func, update
 from app.db.Database import get_db
 from app.models.Attendance import Attendance
 
@@ -37,7 +37,56 @@ class AttendanceService(BaseModel):
             await db.commit()
             await db.refresh(new_attendance)
             return new_attendance
+
+    async def updateAttendance(self):
+        '''
+        Update the attendance of a user to an event.
+        '''
         
+        async for db in get_db():
+            stmt = (
+                update(Attendance)
+                .where(Attendance.documentID == self.doc_id)
+                .values(nameAttendance = self.name,
+                emailAttendance = self.email,
+                contactNumber = self.contact_number,
+                documentID = self.doc_id,
+                waitlist = self.waitlist,
+                eventAssistanceID = self.event_assistance_id)
+                )
+            db.execute(stmt)
+            await db.commit()
+            return await AttendanceService.getAttendanceByID(self.doc_id, self.event_assistance_id)
+
+    @staticmethod
+    async def getAttendanceByID(document:int, event_id:int):
+        '''
+        Get the attendance for a determined person in a specified event
+        '''
+
+        async for db in get_db():
+            stmt = select(Attendance).where(Attendance.eventAssistanceID == event_id and Attendance.documentID == document)
+            result = await db.execute(stmt)
+            attendance = result.scalars().all()  # return objects or None
+            if attendance is None:
+                return []
+            return [ AttendanceService.jsonify(attendance) for attendance in attendance]
+
+
+    @staticmethod
+    async def getNumberOfAttendances(event_id:int):
+        '''
+        Get the number of attendances by event.
+        '''
+        async for db in get_db():
+            stmt = select(
+                func.count(Attendance.attendanceID)
+                ).where(Attendance.eventAssistanceID == event_id)
+            
+            result = await db.execute(stmt)
+            active_count = result.scalar_one()
+            return active_count
+    
     @staticmethod
     async def getAttendanceByEvent(event_id:int):
         '''
