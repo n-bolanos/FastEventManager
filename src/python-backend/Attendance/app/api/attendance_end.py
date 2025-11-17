@@ -28,13 +28,11 @@ async def confirm_attendance(confirmation: AttendanceService, capacity: int):
     return {"attendance": new_attendance}
 
 @router.put("/update/", status_code=status.HTTP_202_ACCEPTED)
-async def update_attendance(confirmation: AttendanceService, capacity: int):
+async def update_attendance(confirmation: AttendanceService):
     '''
     Endpoint to update the data of an attendance to an event.
     '''
-    if capacity > AttendanceService.getNumberOfAttendances(confirmation.event_assistance_id):
-        confirmation.waitlist = True
-    new_attendance = await confirmation.confirmAttendace()
+    new_attendance = await confirmation.updateAttendance()
     return {"attendance": new_attendance}
 
 @router.get("/{event_id}", status_code=status.HTTP_200_OK)

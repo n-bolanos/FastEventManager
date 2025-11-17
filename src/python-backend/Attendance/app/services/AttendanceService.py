@@ -42,7 +42,6 @@ class AttendanceService(BaseModel):
         '''
         Update the attendance of a user to an event.
         '''
-        
         async for db in get_db():
             stmt = (
                 update(Attendance)
@@ -51,12 +50,22 @@ class AttendanceService(BaseModel):
                 emailAttendance = self.email,
                 contactNumber = self.contact_number,
                 documentID = self.doc_id,
-                waitlist = self.waitlist,
                 eventAssistanceID = self.event_assistance_id)
                 )
             db.execute(stmt)
             await db.commit()
             return await AttendanceService.getAttendanceByID(self.doc_id, self.event_assistance_id)
+
+    async def checkWaitListStatus(self):
+        '''
+        Check if the attendance is in the waitlist.
+        '''
+        async for db in get_db():
+            stmt = select(Attendance).where(Attendance.documentID == self.doc_id and Attendance.eventAssistanceID == self.event_assistance_id)
+            result = await db.execute(stmt)
+            attendance = result.scalars().first()  # return object or None
+
+            return attendance.waitlist
 
     @staticmethod
     async def getAttendanceByID(document:int, event_id:int):
