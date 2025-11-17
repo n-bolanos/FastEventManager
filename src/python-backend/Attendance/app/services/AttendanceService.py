@@ -48,11 +48,9 @@ class AttendanceService(BaseModel):
                 .where(Attendance.documentID == self.doc_id)
                 .values(nameAttendance = self.name,
                 emailAttendance = self.email,
-                contactNumber = self.contact_number,
-                documentID = self.doc_id,
-                eventAssistanceID = self.event_assistance_id)
+                contactNumber = self.contact_number,)
                 )
-            db.execute(stmt)
+            await db.execute(stmt)
             await db.commit()
             return await AttendanceService.getAttendanceByID(self.doc_id, self.event_assistance_id)
 
