@@ -4,7 +4,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class SimpleTemplateEngine {
+public class TemplateEngine {
 
     public static String render(String templateName, Map<String, Object> params) {
         try {
