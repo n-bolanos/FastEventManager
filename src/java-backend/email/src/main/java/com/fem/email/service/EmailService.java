@@ -45,11 +45,10 @@ public class EmailService {
 
     private String renderTemplate(EmailType type, Map<String, Object> params) {
         return switch (type) {
-            case PASSWORD_RESET -> SimpleTemplateEngine.render("password_reset.html", params);
-            case EVENT_CONFIRMATION -> SimpleTemplateEngine.render("event_confirmation.html", params);
-            case WAITLIST_NOTIFICATION -> SimpleTemplateEngine.render("waitlist.html", params);
-            case WAITLIST_PROMOTION -> SimpleTemplateEngine.render("waitlist_promotion.html", params);
-            default -> throw new IllegalArgumentException("Unknown template type");
+            case PASSWORD_RESET -> TemplateEngine.render("password_reset.html", params);
+            case EVENT_CONFIRMATION -> TemplateEngine.render("event_confirmation.html", params);
+            case WAITLIST_NOTIFICATION -> TemplateEngine.render("waitlist.html", params);
+            case WAITLIST_PROMOTION -> TemplateEngine.render("waitlist_promotion.html", params);
         };
     }
 }
