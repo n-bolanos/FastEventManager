@@ -38,8 +38,18 @@ public class EmailService {
                 null
             );
 
+        } catch (RuntimeException e) {
+            // From template
+            return new EmailResponse(false, null,
+                    "Template processing failed: " + e.getMessage());
+        } catch (MessagingException e) {
+            // From SMTP
+            return new EmailResponse(false, null,
+                    "Email sending failed: " + e.getMessage());
         } catch (Exception e) {
-            return new EmailResponse(false, null, e.getMessage());
+            // Other
+            return new EmailResponse(false, null,
+                    "Unexpected error: " + e.getMessage());
         }
     }
 
@@ -49,6 +59,7 @@ public class EmailService {
             case EVENT_CONFIRMATION -> TemplateEngine.render("event_confirmation.html", params);
             case WAITLIST_NOTIFICATION -> TemplateEngine.render("waitlist.html", params);
             case WAITLIST_PROMOTION -> TemplateEngine.render("waitlist_promotion.html", params);
+            case CAPACITY_REACHED -> TemplateEngine.render("capacity_reached.html", params);
         };
     }
 }
