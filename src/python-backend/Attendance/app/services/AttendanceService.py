@@ -45,25 +45,14 @@ class AttendanceService(BaseModel):
         async for db in get_db():
             stmt = (
                 update(Attendance)
-                .where(Attendance.documentID == self.doc_id)
+                .where(Attendance.documentID == self.doc_id and Attendance.eventAssistanceID == self.event_assistance_id)
                 .values(nameAttendance = self.name,
                 emailAttendance = self.email,
-                contactNumber = self.contact_number,)
+                contactNumber = self.contact_number)
                 )
             await db.execute(stmt)
             await db.commit()
             return await AttendanceService.getAttendanceByID(self.doc_id, self.event_assistance_id)
-
-    async def checkWaitListStatus(self):
-        '''
-        Check if the attendance is in the waitlist.
-        '''
-        async for db in get_db():
-            stmt = select(Attendance).where(Attendance.documentID == self.doc_id and Attendance.eventAssistanceID == self.event_assistance_id)
-            result = await db.execute(stmt)
-            attendance = result.scalars().first()  # return object or None
-
-            return attendance.waitlist
 
     @staticmethod
     async def getAttendanceByID(document:int, event_id:int):
@@ -78,7 +67,6 @@ class AttendanceService(BaseModel):
             if attendance is None:
                 return []
             return [ AttendanceService.jsonify(attendance) for attendance in attendance]
-
 
     @staticmethod
     async def getNumberOfAttendances(event_id:int):
