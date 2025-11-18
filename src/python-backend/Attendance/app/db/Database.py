@@ -30,7 +30,7 @@ class Database:
     @classmethod
     def get_engine(cls):
         if cls._engine is None:
-            cls._engine = create_async_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
+            cls._engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
         return cls._engine
 
     @classmethod
