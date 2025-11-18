@@ -35,7 +35,7 @@ async def update_attendance(confirmation: AttendanceService):
     new_attendance = await confirmation.updateAttendance()
     return {"attendance": new_attendance}
 
-@router.get("/{event_id}", status_code=status.HTTP_200_OK)
+@router.get("event/{event_id}", status_code=status.HTTP_200_OK)
 async def get_attendances(event_id: int):
     '''
     Endpoint to retrive the attendances of an event.
@@ -43,7 +43,7 @@ async def get_attendances(event_id: int):
     attendance = await AttendanceService.getAttendanceByEvent(event_id)
     return {"data": attendance}
 
-@router.get("/{document_id}/", status_code=status.HTTP_200_OK)
+@router.get("check/document/{document_id}/event/{event_id}", status_code=status.HTTP_200_OK)
 async def check_if_confirmed(event_id: int, document_id: str):
     '''
     Check if a user with document (document_id) has confirmed 
@@ -53,3 +53,11 @@ async def check_if_confirmed(event_id: int, document_id: str):
     if attendance is None:
         return {"response": False}
     return {"response": attendance}
+
+@router.put("waitlist/switch/id/{document}/event/{event_id}")
+async def switch_waitlist_status(document: str, event_id: int):
+    '''
+    Switch the waitlist status of an user for a specified event.
+    '''
+    attendance = await AttendanceService.switchWaitListStatus(document, event_id)
+    return {"attendance": attendance}
