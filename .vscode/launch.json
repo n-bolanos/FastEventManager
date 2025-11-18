@@ -2,6 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "KafkaSimpleProducer",
+      "request": "launch",
+      "mainClass": "com.fem.email.controller.KafkaSimpleProducer",
+      "projectName": "email"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
