@@ -67,6 +67,21 @@ class AttendanceService(BaseModel):
             if attendance is None:
                 return []
             return [ AttendanceService.jsonify(attendance) for attendance in attendance]
+    
+    @staticmethod
+    async def switchWaitListStatus(document:int, event_id:int):
+        '''
+        Switch the waitlists status for a specific person in an event.
+        '''
+
+        async for db in get_db():
+            stmt = (update(Attendance)
+                   .where(Attendance.documentID == document and Attendance.eventAssistanceID == event_id)
+                   .values(waitlist = not Attendance.waitlist)
+                    )
+            await db.execute(stmt)
+            await db.commit()
+            return await AttendanceService.getAttendanceByID(document)
 
     @staticmethod
     async def getNumberOfAttendances(event_id:int):
