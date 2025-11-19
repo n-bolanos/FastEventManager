@@ -106,7 +106,7 @@ async def switch_waitlist_status(document: str, event_id: int, event_name:str, d
                                 attendance[0].nameAttendance,
                                 event_name,
                                 date,
-                                location        
+                                location    
         )
         send_notification(msj)
     except:
