@@ -1,8 +1,13 @@
-from kafka import KafkaProducer
+from kafka import KafkaProducer, errors
 import json
+from datetime import datetime
 
-producer = KafkaProducer(bootstrap_servers='localhost:1234',
+try:
+    producer = KafkaProducer(bootstrap_servers='localhost:1234',
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+except errors.NoBrokersAvailable:
+    print('''The current kafka server is down, check the url or startup the image.
+        No mail will be send till this is fixed''')
 
 class Message:
     '''
@@ -28,7 +33,7 @@ class Confirmation(Message):
     '''
     Structure for max capacity reached messages
     '''
-    def __init__(self, to, name, event_name, date, location):
+    def __init__(self, to:str, name:str, event_name:str, date:datetime, location:str):
         super().__init__(to, '''Attendance Confirmation''', "EVENT_CONFIRMATION")
         self.params = {"name":name, "eventName":event_name, "eventDate":date, "location":location}
 
@@ -48,8 +53,8 @@ class WaitListPromotion(Message):
         super().__init__(to, '''Waitlist Promotion''', "WAITLIST_PROMOTION")
         self.params = {"name":name, "eventName":event_name, "eventDate":date, "location":location}
   
-def send_notification(topic: str, message: dict):
+def send_notification( message: dict):
     '''
     Send a mail to notify about a certain topic.
     '''
-    producer.send(topic, message)
+    producer.send("email.send", message)

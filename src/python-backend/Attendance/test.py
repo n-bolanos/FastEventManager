@@ -1,15 +1,15 @@
 import requests
 
-url_post = "http://127.0.0.1:8000/attendance/confirm/?capacity=10"
+url_post = "http://127.0.0.1:8000/attendance/confirm/?capacity=10&event_name=pinata&date=2025-02-12&location=peru&creator_id=1"
 url_put = "http://127.0.0.1:8000/attendance/update/"
 url_get0 = "http://127.0.0.1:8000/attendance/0"
 url_get1 = "http://127.0.0.1:8000/attendance/1"
 # JSON body
 data = {
-	"name": "Jorde",
+	"name": "Jose Carlos",
     "email": "mateo@unal.edu.co",
     "contact_number": "1",
-    "doc_id": "1031648906",
+    "doc_id": "1031648907",
     "event_assistance_id" :1
 
 }
@@ -30,7 +30,7 @@ data2 = {
 
 }
 
-response0 = requests.put(url_put, json=data)
+response0 = requests.post(url_post, json=data)
 #response1 = requests.post(url_post, json=data1)
 #response2 = requests.post(url_post, json=data2)
 #response3 = requests.get(url_get0)
@@ -39,7 +39,7 @@ response0 = requests.put(url_put, json=data)
 # Check status and response
 print(response0)
 #print("Status code:", response0.status_code)
-#print("Response body:", response0.json())
+print("Response body:", response0.json())
 #print("Status code:", response1.status_code)
 #print("Response body:", response1.json())
 #print("Status code:", response2.status_code)
@@ -47,3 +47,4 @@ print(response0)
 
 #print("Response event 0", response3.json())
 #print("Response event 1", response4.json())
+print(response0.json().get("attendance").get("attendanceID"))
