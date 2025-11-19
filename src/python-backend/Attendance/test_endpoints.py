@@ -1,4 +1,43 @@
 import requests
+import unittest
+import main
+
+class TestMiModulo(unittest.TestCase):
+
+    def setUp(self):
+        """Se ejecuta antes de cada prueba."""
+        # Inicializa variables, objetos, mocks, etc.
+        self.valor_inicial = 10
+
+    def tearDown(self):
+        """Se ejecuta después de cada prueba."""
+        # Limpia recursos abiertos, conexiones, etc.
+        pass
+
+    def test_funcion_caso_exitoso(self):
+        """Prueba un caso exitoso normal."""
+        resultado = self.valor_inicial + 5  # reemplazar por tu función real
+        self.assertEqual(resultado, 15)
+
+    def test_funcion_caso_error(self):
+        """Prueba cuando la función debe lanzar un error."""
+        with self.assertRaises(ValueError):
+            int("no es un número")  # ejemplo de error
+
+    def test_funcion_con_valores_parametrizados(self):
+        """Ejemplo de pruebas parametrizadas simples."""
+        casos = [
+            (1, 2, 3),
+            (5, 5, 10),
+            (10, 0, 10)
+        ]
+        for a, b, esperado in casos:
+            with self.subTest(a=a, b=b):
+                resultado = a + b  # reemplazar con tu función real
+                self.assertEqual(resultado, esperado)
+
+if __name__ == '__main__':
+    unittest.main()
 
 url_post = "http://127.0.0.1:8000/attendance/confirm/?capacity=10&event_name=pinata&date=2025-02-12&location=peru&creator_id=1"
 url_put = "http://127.0.0.1:8000/attendance/update/"
