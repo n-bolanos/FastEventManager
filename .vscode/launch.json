@@ -5,6 +5,13 @@
       "type": "java",
       "name": "KafkaSimpleProducer",
       "request": "launch",
+      "mainClass": "com.fem.email.KafkaSimpleProducer",
+      "projectName": "email"
+    },
+    {
+      "type": "java",
+      "name": "KafkaSimpleProducer",
+      "request": "launch",
       "mainClass": "com.fem.email.controller.KafkaSimpleProducer",
       "projectName": "email"
     },
