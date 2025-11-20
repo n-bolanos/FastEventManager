@@ -89,4 +89,11 @@ public class AuthService {
         return new UserInfoResponse(u.getName(), u.getEmail());
     }
 
+    /**
+     * Convenience method to get user info by id.
+     */
+    public UserInfoResponse getUserInfoById(java.util.UUID id) {
+        return getUserInfo(new UserInfoRequest(id));
+    }
+
 }
