@@ -19,5 +19,5 @@ class EventResponse(BaseModel):
     confirmed_attendance: int
     creator_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
