@@ -59,8 +59,8 @@ public class AuthController {
      * @return a ResponseEntity with status set to OK (HTTP 200) and the information in its body
      */
     @GetMapping("/userinfo")
-    public ResponseEntity<UserInfoResponse> userinfo(@PathVariable("id") java.util.UUID id) {
-        UserInfoResponse res = authService.getUserInfobyId(id);
+    public ResponseEntity<UserInfoResponse> userinfo(@RequestParam("id") Integer id) {
+        UserInfoResponse res = authService.getUserInfoById(id);
         return ResponseEntity.ok(res);
     }
 
