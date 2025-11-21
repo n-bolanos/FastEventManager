@@ -1,7 +1,7 @@
 /**
- * Class containing test for the most important functionality of 
- * the authentication micreservice. It includes JWT, internal logic such as
- * registration or login, and the Web layer of SpringBoot
+ * Class containing test for the functionality of the utils in
+ * the authentication microservice. It includes JWT generation, validation
+ * and expiration.
  * 
  */
 package com.fem.authentication.util;
