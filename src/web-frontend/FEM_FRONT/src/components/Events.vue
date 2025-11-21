@@ -48,6 +48,18 @@ const attendances = ref([
         contact: "3107799009",
         waitlist: false
     },
+    {   id:0,
+        name: "Santiago Fetecua",
+        email: "sfetecua@unal.edu.co",
+        contact: "3107799009",
+        waitlist: true
+    },
+    {   id:0,
+        name: "Santiago Fetecua",
+        email: "sfetecua@unal.edu.co",
+        contact: "3107799009",
+        waitlist: false
+    },
 ])
 const events = ref([
     {
@@ -85,11 +97,35 @@ const events = ref([
         name : "peach",
         date : "20:00 - 25:00",
         capacity : 200
-    }
+    },
+    {   
+        id:4,
+        name : "mango",
+        date : "17:00 - 16:00",
+        capacity : 100
+    },
+    {   
+        id:5,
+        name : "peach",
+        date : "20:00 - 25:00",
+        capacity : 200
+    },
+    {   
+        id:4,
+        name : "mango",
+        date : "17:00 - 16:00",
+        capacity : 100
+    },
+    {   
+        id:5,
+        name : "peach",
+        date : "20:00 - 25:00",
+        capacity : 200
+    },
 ])
 </script>
 <template>
-    <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-80">
+    <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-90">
         <singleEvent @details="switchAttendances" class= "mb-4" v-for="event in events" :key="event.id"  :id="event.id ":name="event.name" :capacity="event.capacity" :date="event.date"/>
     </div>
     <div v-if="isShowing" class="flex flex-col w-full m-5 overflow-x-hidden max-h-80 max-w-full">
