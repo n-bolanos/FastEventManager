@@ -15,7 +15,6 @@ public class KafkaSimpleProducer {
 
     public static void main(String[] args) throws Exception {
 
-        // ---- Configuración del producer ----
         Map<String, Object> config = new HashMap<>();
         config.put("bootstrap.servers", "localhost:9092");
         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
@@ -26,7 +25,7 @@ public class KafkaSimpleProducer {
 
         String json = """
         {
-          "to": "secorreae@unal.edu.co",
+          "to": "secoes203@gmail.com",
           "subject": "Kafka Test",
           "type": "EVENT_CONFIRMATION",
           "params": {
@@ -41,7 +40,6 @@ public class KafkaSimpleProducer {
         CompletableFuture<SendResult<String, String>> future =
                 kafkaTemplate.send("email.send", json);
 
-        // Callback moderno usando CompletableFuture
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 System.out.println("Mensaje enviado correctamente");
@@ -53,6 +51,7 @@ public class KafkaSimpleProducer {
             }
         });
 
+        kafkaTemplate.flush();
         Thread.sleep(2000);
     }
 }
