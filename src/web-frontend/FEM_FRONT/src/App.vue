@@ -58,7 +58,8 @@ function switchSignUp() {
       @isVerified="switchLogIn"
       @signReq="switchSignUp"/>
       <SignForm v-if="!logIn && signUp"
-      @created="switchSignUp"/>
+      @created="switchSignUp"
+      @back="switchSignUp"/>
       <Events v-if="logIn && !signUp && !creation"/>
       <Create v-if="logIn && creation"
       @created="switchCreation"/>
