@@ -26,10 +26,10 @@ function signUp(){
                     Welcome
                 </label>
                 <div class="flex flex-col justify-items-start text-xl mb-4">
-                    Username
+                    Username or Email
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
                         <UserIcon class="mx-4 bg-purple-100"/>
-                        <input v-model="username" type="text" 
+                        <input v-model="username" required type="text" 
                         class= "box-content text-xl bg-purple-100"
                         placeholder="Enter your username" />
                     </div>
@@ -38,7 +38,7 @@ function signUp(){
                     Password
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
                         <PwdIcon class="mx-4 bg-purple-100"/>
-                        <input v-model="password" type="password" 
+                        <input v-model="password" required type="password" 
                         class= "box-content text-xl bg-purple-100"
                         placeholder="Enter your password" />
                     </div>
