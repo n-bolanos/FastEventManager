@@ -1,4 +1,4 @@
-USE auth_microservice;
+USE authdb;
 
 -- Table storing system users
 CREATE TABLE IF NOT EXISTS user (
