@@ -13,9 +13,9 @@ public class JwtUtil {
     private final Algorithm algorithm;
     private final long expirySeconds;
 
-    public JwtUtil(@Value("${jwt.secret}") String secret){
+    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expirySeconds}") Integer expirySeconds){
         this.algorithm = Algorithm.HMAC256(secret);
-        this.expirySeconds = 15000;
+        this.expirySeconds = (expirySeconds != null) ? expirySeconds : 15000;
     }
 
     public String generateToken(String subject){
