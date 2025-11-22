@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PwdIcon from "../icons/IconPwd.vue"
-import checkCredentials from "../assets/js/Login"
+// import checkCredentials from "../assets/js/Login"
 const username = ref('')
 const password = ref('')
 
@@ -12,7 +12,7 @@ const emit = defineEmits([
 ])
 
 function verifyCredentials(){
-    checkCredentials(username.value, password.value)
+    // checkCredentials(username.value, password.value)
     emit('isVerified')
 }
 

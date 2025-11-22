@@ -9,8 +9,9 @@ load_dotenv()
 #SERVICE URLS (FROM .env)
 
 ATTENDANCE_SVC = os.getenv("ATTENDANCE_SVC_URL", "http://localhost:8000")
-EVENT_SVC = os.getenv("EVENT_SVC_URL", "http://localhost:8001")
-LOGIN_SVC = os.getenv("LOGIN_SVC_URL", "http://localhost:8080")  # Confirmar y cambiar
+EVENT_SVC = os.getenv("EVENT_SVC_URL", "http://localhost:8020")
+LOGIN_SVC = os.getenv("LOGIN_SVC_URL", "http://localhost:8070")
+FRONT = os.getenv("FRONT_URL", "http://localhost:8050")
 
 #FASTAPI APP
 
@@ -18,7 +19,7 @@ app = FastAPI(title="API Gateway")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONT],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -110,5 +111,5 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", port=8003, reload=True)
+    uvicorn.run("main:app", port=8010, reload=True)
 
