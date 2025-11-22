@@ -53,7 +53,7 @@ public class EmailService {
         }
     }
 
-    private String renderTemplate(EmailType type, Map<String, Object> params) {
+    protected String renderTemplate(EmailType type, Map<String, Object> params) {
         return switch (type) {
             case PASSWORD_RESET -> TemplateEngine.render("password_reset.html", params);
             case EVENT_CONFIRMATION -> TemplateEngine.render("event_confirmation.html", params);
