@@ -81,7 +81,7 @@ class AttendanceService(BaseModel):
                     )
             await db.execute(stmt)
             await db.commit()
-            return await AttendanceService.getAttendanceByID(document)
+            return await AttendanceService.getAttendanceByID(document, event_id)
 
     @staticmethod
     async def getNumberOfAttendances(event_id:int):

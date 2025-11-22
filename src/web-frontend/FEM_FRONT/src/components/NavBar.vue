@@ -28,7 +28,7 @@ function switchLogin() {
 </script>
 <template>
     <nav class="flex h-[7vh] justify-between">
-        <img src="../assets/FEM_icon.png" class="object-contain"/>
+        <img src="../assets/images/FEM_icon.png" class="object-contain"/>
         <div v-if="isLoggedIn | isSigningUp" class="felx items-end text-3xl mt-3 text-neutral-50 font-poppins">
             <label>{{ msj }}</label>
         </div>
