@@ -54,7 +54,6 @@ public class AuthService {
         //TODO: connect to email micro via pub/sub
     }
 
-
     /**
      * Attempts to authenticate a user using the selected credential strategy.
      *
@@ -69,7 +68,7 @@ public class AuthService {
             .flatMap(s -> s.authenticate(req));
 
         User u = authenticated.orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-        String token = jwtUtil.generateToken(u.getId().toString());
+        String token = jwtUtil.generateToken(Long.toString(u.getId()));
         return new LoginResponse(token);
     }
 
@@ -81,12 +80,17 @@ public class AuthService {
      * @throws IllegalArgumentException if the user doesn't exist
      */
     public UserInfoResponse getUserInfo(UserInfoRequest req) {
-        if (!userRepository.existsById(req.id())) {
-            throw new IllegalArgumentException("User not found");
-        }
+        User user = userRepository.findById(req.id())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        User u = userRepository.findById(req.id());
-        return new UserInfoResponse(u.getName(), u.getEmail());
+        return new UserInfoResponse(user.getName(), user.getEmail());
+    }
+
+    /**
+     * Convenience method to get user info by id.
+     */
+    public UserInfoResponse getUserInfoById(Integer id) {
+        return getUserInfo(new UserInfoRequest(id));
     }
 
 }
