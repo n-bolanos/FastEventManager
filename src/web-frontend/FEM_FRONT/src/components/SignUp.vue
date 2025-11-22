@@ -9,7 +9,12 @@ const error_msj = ref('')
 
 const emit = defineEmits([
   'created',
+  'back'
 ])
+
+function back(){
+    emit('back')
+}
 
 function createAccount(){
     if (password_conf.value === password.value){
@@ -21,6 +26,11 @@ function createAccount(){
 }
 </script>
 <template>
+    <button @click="back"
+            class="text-grey-300 underline text-lg inline-flex h-fit w-fit
+            hover:text-gray-500 hover:cursor-pointer">
+    back
+    </button>
     <form @submit.prevent="createAccount"
         class="grid grid-cols-2 gap-1">
         <div class="grid grid-rows-3 font-poppins h-full text-xl p-10">

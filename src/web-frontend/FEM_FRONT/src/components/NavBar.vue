@@ -28,18 +28,27 @@ function switchLogin() {
 </script>
 <template>
     <nav class="flex h-[7vh] justify-between">
-        <img src="../assets/FEM_icon.png" class="object-contain"/>
-        <div v-if="isLoggedIn | isSigningUp" class="felx items-end text-3xl mt-3 ml-22 text-neutral-50 font-poppins">
+        <img src="../assets/images/FEM_icon.png" class="object-contain"/>
+        <div v-if="isLoggedIn | isSigningUp" class="felx items-end text-3xl mt-3 text-neutral-50 font-poppins">
             <label>{{ msj }}</label>
         </div>
-        <div id="login-logout" class="flex items-center justify-center text-l text-neutral-50 w-1/7">
-            <button v-if="isLoggedIn" class= "flex items-center justify-center transition-transform duration-500 hover:scale-110 hover:cursor-pointer" 
+        <div id="login-logout" class="flex items-center justify-end text-l text-neutral-50 w-fit">
+            <button v-if="isLoggedIn"
+            class= "flex items-center justify-center transition-transform duration-500 hover:scale-110 hover:cursor-pointer" 
             @click="switchLogin">
                  <LoginIcon class="size-8 hover:cursor-pointer"/>
                  <label class="hover:cursor-pointer">
                     Log out
                  </label>
             </button>
+            <label v-if="!isLoggedIn"
+            :class="{ 'opacity-100': isLoggedIn, 'opacity-0': !isLoggedIn }"
+            class= "flex items-center justify-center transition-transform duration-500" >
+                 <LoginIcon/>
+                 <label>
+                    Log out
+                 </label>
+                </label>
         </div>
     </nav>
 </template>

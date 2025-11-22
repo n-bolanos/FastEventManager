@@ -35,8 +35,16 @@ function createEvent(){
     }
 
 }
+function back(){
+    emit('created')
+}
 </script>
 <template>
+    <button @click="back"
+            class="text-grey-300 underline text-lg inline-flex h-fit w-fit
+            hover:text-gray-500 hover:cursor-pointer">
+    back
+    </button>
     <form @submit.prevent="createEvent"
         class="grid grid-cols-2 gap-1">
         <div class="grid grid-rows-3 font-poppins h-full text-xl p-10">

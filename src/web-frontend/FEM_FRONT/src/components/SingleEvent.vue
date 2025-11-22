@@ -1,6 +1,10 @@
 <script setup>
 import ShareIcon from "../icons/IconShare.vue"
 const props = defineProps({
+    id: {
+        type: Number,
+        default: 0
+    },
     name: {
         type: String,
         default: " "
@@ -14,8 +18,12 @@ const props = defineProps({
         default: " "
     }
 })
+const emit = defineEmits([
+  'details',
+])
+
 function showAttendance(){
-    
+    emit('details', props.id)
 }
 </script>
 <template>
