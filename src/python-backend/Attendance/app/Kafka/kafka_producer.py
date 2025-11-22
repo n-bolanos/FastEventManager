@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 
 try:
-    producer = KafkaProducer(bootstrap_servers='localhost:1234',
+    producer = KafkaProducer(bootstrap_servers='localhost:9092',
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 except errors.NoBrokersAvailable:
     print('''The current kafka server is down, check the url or startup the image.
