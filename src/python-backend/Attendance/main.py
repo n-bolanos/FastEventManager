@@ -7,7 +7,18 @@ from app.api.attendance_end import router as attendance_router
 from contextlib import asynccontextmanager
 from app.db.Database import Database
 import app.models.Attendance # Load the model so it associated table can be created
-from app.services import AttendanceService
+
+def start_app():
+    '''
+    Start the FastAPI app
+    '''
+    
+    run(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
 
 @asynccontextmanager
 async def startup(app: FastAPI):
@@ -29,9 +40,4 @@ def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    run(
-        "main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True
-    )
+    start_app()

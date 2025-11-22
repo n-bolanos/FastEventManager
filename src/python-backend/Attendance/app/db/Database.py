@@ -12,8 +12,6 @@ load_dotenv(env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-
-
 class Base(DeclarativeBase):
     '''
     Base class for sqlalchemy models
