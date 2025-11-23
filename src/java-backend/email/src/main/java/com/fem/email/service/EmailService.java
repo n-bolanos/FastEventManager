@@ -6,6 +6,7 @@ import com.fem.email.dto.EmailType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,13 @@ import java.util.UUID;
 
 /**
  * Service responsible for handling email composition and delivery.
- * 
+ *
  * This class delegates template rendering to {@link TemplateEngine}, constructs
  * MIME messages, and sends them through the configured {@link JavaMailSender}.
  * It also handles and categorizes different types of failures, returning
  * structured {@link EmailResponse} objects.
- * 
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -52,7 +53,8 @@ public class EmailService {
             helper.setText(Objects.requireNonNull(htmlContent), true);
 
             mailSender.send(message);
-
+            
+            log.info("Successful email sending");
             return new EmailResponse(
                 true,
                 UUID.randomUUID().toString(),
@@ -60,6 +62,7 @@ public class EmailService {
             );
 
         } catch (MessagingException e) {
+            log.error("Email sending failed: {}", e.getMessage(), e);
             return new EmailResponse(
                 false,
                 null,
@@ -67,6 +70,7 @@ public class EmailService {
             );
 
         } catch (TemplateError e) {
+            log.error("Template processing failed: {}", e.getMessage(), e);
             return new EmailResponse(
                 false,
                 null,
@@ -74,6 +78,7 @@ public class EmailService {
             );
 
         } catch (RuntimeException e) {
+            log.error("Unexpected error while sending email: {}", e.getMessage(), e);
             return new EmailResponse(
                 false,
                 null,
