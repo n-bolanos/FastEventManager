@@ -31,6 +31,16 @@ public class EmailService {
     /** Mail sender used to create and send MIME email messages. */
     private final JavaMailSender mailSender;
 
+    /** Map of EmailTypes to HTML templates' names. */
+    private static final Map<EmailType, String> TEMPLATE_MAP = Map.of(
+        EmailType.SUCCESSFUL_REGISTER, "successful_register.html",
+        EmailType.PASSWORD_RESET, "password_reset.html",
+        EmailType.EVENT_CONFIRMATION, "event_confirmation.html",
+        EmailType.WAITLIST_NOTIFICATION, "waitlist.html",
+        EmailType.WAITLIST_PROMOTION, "waitlist_promotion.html",
+        EmailType.CAPACITY_REACHED, "capacity_reached.html"
+    );
+
     /**
      * Sends an email based on the provided {@link EmailRequest}.
      *
@@ -98,19 +108,11 @@ public class EmailService {
      * @return the rendered HTML content as a string
      */
     protected String renderTemplate(EmailType type, Map<String, Object> params) {
-        return switch (type) {
-            case SUCCESSFUL_REGISTER ->
-                    TemplateEngine.render("successful_Register.html", params);
-            case PASSWORD_RESET ->
-                    TemplateEngine.render("password_reset.html", params);
-            case EVENT_CONFIRMATION ->
-                    TemplateEngine.render("event_confirmation.html", params);
-            case WAITLIST_NOTIFICATION ->
-                    TemplateEngine.render("waitlist.html", params);
-            case WAITLIST_PROMOTION ->
-                    TemplateEngine.render("waitlist_promotion.html", params);
-            case CAPACITY_REACHED ->
-                    TemplateEngine.render("capacity_reached.html", params);
-        };
+        String template = TEMPLATE_MAP.get(type);
+
+        if (template == null)
+            throw new TemplateError("No template configured for type: " + type);
+
+        return TemplateEngine.render(template, params);
     }
 }
