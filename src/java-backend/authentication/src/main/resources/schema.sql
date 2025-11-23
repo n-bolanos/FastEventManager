@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS user (
     
     username VARCHAR(100) UNIQUE,
     email VARCHAR(255) UNIQUE,
-    name VARCHAR(255) UNIQUE,
+    name VARCHAR(255),
     
     password_hash VARCHAR(255) NOT NULL
 );
