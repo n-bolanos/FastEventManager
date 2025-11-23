@@ -1,6 +1,7 @@
 package com.fem.email.dto;
 
 public enum EmailType {
+    SUCCESSFUL_REGISTER,
     PASSWORD_RESET,
     EVENT_CONFIRMATION,
     WAITLIST_NOTIFICATION,
