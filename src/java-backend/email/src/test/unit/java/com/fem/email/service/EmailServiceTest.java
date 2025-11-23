@@ -18,8 +18,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link EmailService}, validating email delivery logic and
+ * ensuring correct error handling for template failures, SMTP issues,
+ * and unexpected exceptions.
+ */
 class EmailServiceTest {
 
+    /**
+     * Verifies that a valid request with a working template and functioning SMTP sender
+     * results in a successful {@link EmailResponse}. Ensures:
+     */
     @Test
     void sendEmail_Success() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
@@ -47,6 +56,10 @@ class EmailServiceTest {
         verify(sender).send(Objects.requireNonNull(any(MimeMessage.class)));
     }
 
+    /**
+     * Ensures that if template rendering throws {@link TemplateError},
+     * the service does not attempt to send an email and returns an error response.
+     */
     @Test
     void sendEmail_TemplateError_ReturnsErrorResponse() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
@@ -68,6 +81,10 @@ class EmailServiceTest {
         assertTrue(res.getError().contains("Template processing failed"));
     }
 
+    /**
+     * Ensures that SMTP transport failures (e.g., {@link MessagingException})
+     * are caught and returned as an "Email sending failed" response.
+     */
     @Test
     void sendEmail_SmtpFailure_ReturnsErrorResponse() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
@@ -76,7 +93,7 @@ class EmailServiceTest {
         when(sender.createMimeMessage()).thenReturn(message);
 
         doThrow(new MessagingException("SMTP down"))
-        .when(sender).send(Objects.requireNonNull(isA(MimeMessage.class)));
+                .when(sender).send(Objects.requireNonNull(isA(MimeMessage.class)));
 
         EmailService service = spy(new EmailService(sender));
         doReturn("<h1>OK</h1>").when(service).renderTemplate(any(), any());
@@ -94,6 +111,11 @@ class EmailServiceTest {
         assertTrue(res.getError().contains("Email sending failed"));
     }
 
+    /**
+     * Ensures unexpected exceptions (e.g., IllegalStateException) occurring
+     * before sending (such as during creation of the MimeMessage)
+     * are caught and returned as an "Unexpected error" response.
+     */
     @Test
     void sendEmail_UnexpectedException_ReturnsErrorResponse() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
