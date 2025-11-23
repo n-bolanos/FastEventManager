@@ -53,6 +53,7 @@ public class EmailService {
 
     protected String renderTemplate(EmailType type, Map<String, Object> params) {
         return switch (type) {
+            case SUCCESSFUL_REGISTER -> TemplateEngine.render("successful_Register.html", params);
             case PASSWORD_RESET -> TemplateEngine.render("password_reset.html", params);
             case EVENT_CONFIRMATION -> TemplateEngine.render("event_confirmation.html", params);
             case WAITLIST_NOTIFICATION -> TemplateEngine.render("waitlist.html", params);
