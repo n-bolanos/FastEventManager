@@ -107,7 +107,7 @@ public class AuthService {
         EmailRequest request = new EmailRequest(
         email,
         "Welcome to FastEventManager!",
-        EmailType.SUCCESSFUL_REGISTRATION,
+        EmailType.SUCCESSFUL_REGISTER,
         Map.of("name", name)
     );
 
