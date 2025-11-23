@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -26,9 +27,9 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            helper.setTo(req.getTo());
-            helper.setSubject(req.getSubject());
-            helper.setText(htmlContent, true);
+            helper.setTo(Objects.requireNonNull(req.getTo()));
+            helper.setSubject(Objects.requireNonNull(req.getSubject()));
+            helper.setText(Objects.requireNonNull(htmlContent), true);
 
             mailSender.send(message);
 
@@ -38,16 +39,13 @@ public class EmailService {
                 null
             );
 
-        } catch (RuntimeException e) {
-            // From template
-            return new EmailResponse(false, null,
-                    "Template processing failed: " + e.getMessage());
         } catch (MessagingException e) {
-            // From SMTP
             return new EmailResponse(false, null,
                     "Email sending failed: " + e.getMessage());
-        } catch (Exception e) {
-            // Other
+        } catch (TemplateError e) {
+            return new EmailResponse(false, null,
+                    "Template processing failed: " + e.getMessage());
+        } catch (RuntimeException e) {
             return new EmailResponse(false, null,
                     "Unexpected error: " + e.getMessage());
         }
