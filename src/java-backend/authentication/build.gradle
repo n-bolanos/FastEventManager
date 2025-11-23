@@ -36,6 +36,10 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.auth0:java-jwt:4.4.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'	
 }
 
 tasks.named('test') {

@@ -13,10 +13,13 @@ import com.fem.authentication.entity.User;
 import com.fem.authentication.repository.UserRepository;
 import com.fem.authentication.service.strategy.CredentialStrategy;
 import com.fem.authentication.util.JwtUtil;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,6 +28,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final List<CredentialStrategy> credentialStrategies;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Autowired
+    private EmailKafkaProducer producer;
 
     public AuthService(UserRepository userRepository, JwtUtil jwtUtil, 
                         List<CredentialStrategy> credentialStrategies) {
@@ -43,15 +49,19 @@ public class AuthService {
         if (userRepository.existsByEmail(req.email())) {
             throw new IllegalArgumentException("Email already used");
         }
+        if (userRepository.existsByUsername(req.username())) {
+            throw new IllegalArgumentException("Username already in use");
+        }
         User u = User.builder()
             .name(req.name())
             .username(req.username())
             .email(req.email())
             .passwordHash(passwordEncoder.encode(req.password()))
             .build();
+
         userRepository.save(u);
 
-        //TODO: connect to email micro via pub/sub
+        notifyUser(u.getEmail(), u.getName());
     }
 
     /**
@@ -92,5 +102,16 @@ public class AuthService {
     public UserInfoResponse getUserInfoById(Integer id) {
         return getUserInfo(new UserInfoRequest(id));
     }
+
+    public void notifyUser(String email, String name) {
+        EmailRequest request = new EmailRequest(
+        email,
+        "Welcome to FastEventManager!",
+        EmailType.SUCCESSFUL_REGISTRATION,
+        Map.of("name", name)
+    );
+
+        producer.sendEmail(request);
+}
 
 }
