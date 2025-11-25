@@ -8,4 +8,5 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.121.3",
     "httpx>=0.28.1",
+    "uvicorn>=0.38.0",
 ]
