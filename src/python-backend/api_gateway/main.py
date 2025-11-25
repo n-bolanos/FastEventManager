@@ -3,6 +3,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from dotenv import load_dotenv
+from fastapi.responses import JSONResponse, Response
+import json
+
 
 load_dotenv()
 
@@ -38,7 +41,12 @@ async def proxy_request(method: str, url: str, request: Request):
             params=request.query_params
         )
 
-        return response.json()
+        try:
+            data = response.json()
+            return JSONResponse(content=data, status_code=response.status_code)
+        except json.JSONDecodeError:
+            # Aquí manejamos respuestas vacías
+            return Response(content=response.text or "", status_code=response.status_code)
 
 #ATTENDANCE ROUTES
 
@@ -94,13 +102,9 @@ async def auth_register(request: Request):
 async def auth_login(request: Request):
     return await proxy_request("POST", f"{LOGIN_SVC}/auth/login", request)
 
-@app.post("/auth/refresh")
-async def auth_refresh(request: Request):
-    return await proxy_request("POST", f"{LOGIN_SVC}/auth/refresh", request)
-
 @app.post("/auth/userinfo")
 async def auth_userinfo(request: Request):
-    return await proxy_request("POST", f"{LOGIN_SVC}/auth/userinfo", request)
+    return await proxy_request("GET", f"{LOGIN_SVC}/auth/userinfo", request)
 
 # HEALTH CHECK
 
