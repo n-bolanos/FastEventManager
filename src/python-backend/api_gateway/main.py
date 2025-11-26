@@ -100,7 +100,32 @@ async def auth_register(request: Request):
 
 @app.post("/auth/login")
 async def auth_login(request: Request):
-    return await proxy_request("POST", f"{LOGIN_SVC}/auth/login", request)
+    auth_resp = await proxy_request("POST", f"{LOGIN_SVC}/auth/login", request)
+
+    if auth_resp.status_code != 200:
+        return auth_resp
+    
+    data = auth_resp.json()
+    access_token = data.get("accessToken")
+    refresh_token = data.get("refreshToken")
+
+    response = Response(
+        content=f'{{"accessToken":"{access_token}"}}',
+        media_type="application/json",
+        status_code=auth_resp.status_code
+    )
+
+    # Set refresh token in httpOnly cookie
+    response.set_cookie(
+        key="refreshToken",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        path="/auth/refresh",
+        max_age=24*60*60
+    )
+
+    return response
 
 @app.post("/auth/userinfo")
 async def auth_userinfo(request: Request):
