@@ -65,7 +65,13 @@ tasks.register('unitTest', Test) {
     group = "verification"
     testClassesDirs = sourceSets.unitTest.output.classesDirs
     classpath = sourceSets.unitTest.runtimeClasspath
-    shouldRunAfter test
+    useJUnitPlatform()
+
+    reports {
+        html.required = true
+        junitXml.required = true
+    }
+    outputs.upToDateWhen { false }
 }
 
 tasks.register('integrationTest', Test) {
@@ -73,14 +79,17 @@ tasks.register('integrationTest', Test) {
     group = "verification"
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
-    mustRunAfter test
+    useJUnitPlatform()
+
+    reports {
+        html.required = true
+        junitXml.required = true
+    }
+    outputs.upToDateWhen { false }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-test {
-    dependsOn unitTest
-    dependsOn integrationTest
+    dependsOn tasks.named('unitTest')
+    dependsOn tasks.named('integrationTest')
 }

@@ -44,8 +44,9 @@ class TemplateEngineTest {
     @Test
     void render_UsesCacheOnSecondCall() throws Exception {
         Map<String, Object> params = new HashMap<>();
+        params.put("name", "Sergio");
         params.put("eventName", "Tech Conference");
-        params.put("maxCapacity", 50);
+        params.put("capacity", 50);
 
         long start1 = System.nanoTime();
         String result1 = TemplateEngine.render("capacity_reached.html", params);
