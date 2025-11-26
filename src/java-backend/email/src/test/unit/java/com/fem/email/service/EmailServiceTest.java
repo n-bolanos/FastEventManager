@@ -7,10 +7,10 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
+import org.springframework.mail.MailParseException;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +53,7 @@ class EmailServiceTest {
         assertNotNull(res.getMessageId());
         assertNull(res.getError());
 
-        verify(sender).send(Objects.requireNonNull(any(MimeMessage.class)));
+        verify(sender).send(any(MimeMessage.class));
     }
 
     /**
@@ -92,8 +92,8 @@ class EmailServiceTest {
         MimeMessage message = mock(MimeMessage.class);
         when(sender.createMimeMessage()).thenReturn(message);
 
-        doThrow(new MessagingException("SMTP down"))
-                .when(sender).send(Objects.requireNonNull(isA(MimeMessage.class)));
+        doThrow(new MailParseException("SMTP down"))
+                .when(sender).send(any(MimeMessage.class));
 
         EmailService service = spy(new EmailService(sender));
         doReturn("<h1>OK</h1>").when(service).renderTemplate(any(), any());
