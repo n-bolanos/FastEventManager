@@ -16,7 +16,7 @@ async function verifyCredentials(){
     const res = await checkCredentials(username.value, password.value);
     if (res.status === 200){
         const data = await res.json();
-        console.log(data.token)
+        console.log(data)
         // TODO: Save JWT in cookies
         emit('isVerified')
     } else if (res.status === 409){
