@@ -1,21 +1,20 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
-const authStore = useAuthStore();
-
 const api_gateway = axios.create({
   baseURL: 'http://localhost:8010',
   withCredentials: true, 
 });
 
-api.interceptors.request.use(config => {
+api_gateway.interceptors.request.use(config => {
+    const authStore = useAuthStore();
   if (authStore.accessToken) {
     config.headers.Authorization = `Bearer ${authStore.accessToken}`;
   }
   return config;
 });
 
-api.interceptors.response.use(
+api_gateway.interceptors.response.use(
   response => response,
   async error => {
     if (error.response?.status === 401) {

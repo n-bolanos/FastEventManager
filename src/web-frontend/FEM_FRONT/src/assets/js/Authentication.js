@@ -1,10 +1,9 @@
 import { useAuthStore } from '@/stores/auth';
-import api_gateway from '@/services/api_gateway';
-
-const authStore = useAuthStore();
+import api_gateway from '@/service/api_gateway';
 
 export async function checkCredentials(username, password) {
     try {
+        const authStore = useAuthStore();
         const response = await api_gateway.post('/auth/login', { username, password });
         authStore.setAccessToken(response.data.accessToken);
         
