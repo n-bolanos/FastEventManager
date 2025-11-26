@@ -8,6 +8,7 @@
  */
 package com.fem.authentication.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fem.authentication.dto.*;
 import com.fem.authentication.entity.User;
 import com.fem.authentication.repository.UserRepository;
@@ -79,7 +80,8 @@ public class AuthService {
 
         User u = authenticated.orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
         String token = jwtUtil.generateToken(Long.toString(u.getId()));
-        return new LoginResponse(token);
+        String refresh = jwtUtil.generateRefreshToken(Long.toString(u.getId()));
+        return new LoginResponse(token, refresh);
     }
 
     /**
@@ -103,6 +105,11 @@ public class AuthService {
         return getUserInfo(new UserInfoRequest(id));
     }
 
+    /**
+     * Convenient function to send email to a registered user via Pub/sub
+     * @param email
+     * @param name
+     */
     public void notifyUser(String email, String name) {
         EmailRequest request = new EmailRequest(
         email,
@@ -112,6 +119,27 @@ public class AuthService {
     );
 
         producer.sendEmail(request);
-}
+    }
+
+    /**
+     * Funtion to refresh the access token based on JWT refresh token
+     * @param refreshToken JWT
+     * @return RefreshResponse indicating: 1) if the token was succesfully refreshed, 2) The new access token
+     */
+    public RefreshResponse refresh(String refreshToken) {
+        if (!"refresh".equals(jwtUtil.extractType(refreshToken))) {
+            throw new IllegalArgumentException("Invalid token type. Waiting a refresh token");
+        }
+        if (jwtUtil.isExpired(refreshToken)) {
+            return new RefreshResponse(false, "Refresh token expired");
+        }
+
+        DecodedJWT userId = jwtUtil.verify(refreshToken).get();
+        String subj = userId.getSubject();
+
+        String newAccess = jwtUtil.generateToken(subj);
+
+        return new RefreshResponse(true, newAccess);
+    }
 
 }

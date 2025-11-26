@@ -64,6 +64,21 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
+    /**
+     * Refresh the access token based on JWT refrest token
+     * 
+     * @param request
+     * @return
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+        RefreshResponse res = authService.refresh(request.refreshToken());
+
+        if (res.refreshed() == false){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+        }
+        return ResponseEntity.ok(res);
+    }
 
     /**
      * Handles exceptions thrown by other methods in the service
