@@ -2,18 +2,28 @@
 import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PwdIcon from "../icons/IconPwd.vue"
-// import checkCredentials from "../assets/js/Login"
+import {checkCredentials} from "../assets/js/Authentication.js"
 const username = ref('')
 const password = ref('')
+const error_msj = ref('')
 
 const emit = defineEmits([
   'isVerified',
   'signReq'
 ])
 
-function verifyCredentials(){
-    // checkCredentials(username.value, password.value)
-    emit('isVerified')
+async function verifyCredentials(){
+    const res = await checkCredentials(username.value, password.value);
+    if (res.status === 200){
+        const data = await res.json();
+        console.log(data.token)
+        // TODO: Save JWT in cookies
+        emit('isVerified')
+    } else if (res.status === 409){
+        const msg = await res.text()
+        error_msj.value = 'Sorry! - '+ msg
+    }
+    
 }
 
 function signUp(){
@@ -27,6 +37,9 @@ function signUp(){
                 <label class="font-poppins text-3xl mb-5">
                     Welcome
                 </label>
+                <div class="flex flex-col justify-start">
+                    <p class="text-red-800">{{ error_msj }}</p>
+                </div>
                 <div class="flex flex-col justify-items-start text-xl mb-4">
                     Username or Email
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
