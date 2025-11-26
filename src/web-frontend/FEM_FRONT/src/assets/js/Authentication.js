@@ -1,5 +1,6 @@
-async function checkCredentials(username, password) {
-    response = await fetch("http://localhost:8070/auth/login",
+export async function checkCredentials(username, password) {
+    try {
+        const res = await fetch("http://localhost:8010/auth/login",
         {method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -8,14 +9,16 @@ async function checkCredentials(username, password) {
             identifier: username,
             password: password
         })
-        })
-        .then(res => res.json())
-        .catch(err => console.error(err));
-    
-    return res
+        });
+        console.log(res)
+         return res
+    } catch(error){
+        console.error("Fetch error:", error);
+        throw error;
+    }
 }
 
-export default async function userRegister(name, username, email, password) {
+export async function userRegister(name, username, email, password) {
     try {
         const res = await fetch("http://localhost:8010/auth/register", {
             method: "POST",
@@ -27,9 +30,6 @@ export default async function userRegister(name, username, email, password) {
                 password
             })
         });
-
-        
-            console.log(res)
             return res
     } catch (error) {
         console.error("Fetch error:", error);

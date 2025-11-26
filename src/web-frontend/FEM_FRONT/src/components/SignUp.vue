@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import userRegister from '../assets/js/Authentication.js'
+import {userRegister} from '../assets/js/Authentication.js'
 const name = ref('')
 const email = ref('')
 const username = ref('')
