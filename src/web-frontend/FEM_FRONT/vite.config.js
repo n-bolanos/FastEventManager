@@ -13,7 +13,8 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 8050
+    port: 8050,
+
   },
   resolve: {
     alias: {

@@ -4,6 +4,7 @@ import Register  from "./Register.vue"
 import { ref } from "vue"
 
 const isShowing = ref(false)
+
 function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
