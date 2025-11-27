@@ -29,6 +29,7 @@ class EmailServiceTest {
      * Verifies that a valid request with a working template and functioning SMTP sender
      * results in a successful {@link EmailResponse}. Ensures:
      */
+    @SuppressWarnings("null")
     @Test
     void sendEmail_Success() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
@@ -85,6 +86,7 @@ class EmailServiceTest {
      * Ensures that SMTP transport failures (e.g., {@link MessagingException})
      * are caught and returned as an "Email sending failed" response.
      */
+    @SuppressWarnings("null")
     @Test
     void sendEmail_SmtpFailure_ReturnsErrorResponse() throws Exception {
         JavaMailSender sender = mock(JavaMailSender.class);
@@ -93,7 +95,7 @@ class EmailServiceTest {
         when(sender.createMimeMessage()).thenReturn(message);
 
         doThrow(new MailParseException("SMTP down"))
-                .when(sender).send(any(MimeMessage.class));
+                .when(sender).send(isA(MimeMessage.class));
 
         EmailService service = spy(new EmailService(sender));
         doReturn("<h1>OK</h1>").when(service).renderTemplate(any(), any());
