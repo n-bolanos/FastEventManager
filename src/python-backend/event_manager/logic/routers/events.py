@@ -15,7 +15,6 @@ def get_db():
     finally:
         db.close()
 
-
 @router.post("/", response_model=EventResponse)
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
     return crud.create_event(db, event)
@@ -38,3 +37,8 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
 def share_event(event_id: int):
     link = f"https://miapp.com/formulario?event_id={event_id}"
     return {"share_link": link}
+
+@router.get("/{event_id}")
+def get_event(event_id: int, db: Session = Depends(get_db)):
+    return {"response": crud.get_event_by_id(db, event_id)}
+
