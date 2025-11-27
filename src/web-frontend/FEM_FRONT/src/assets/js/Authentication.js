@@ -1,38 +1,25 @@
+import { useAuthStore } from '@/stores/auth';
+import api_gateway from '@/service/api_gateway';
+
 export async function checkCredentials(username, password) {
     try {
-        const res = await fetch("http://localhost:8010/auth/login",
-        {method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            identifier: username,
-            password: password
-        })
-        });
-        console.log(res)
-         return res
-    } catch(error){
-        console.error("Fetch error:", error);
-        throw error;
+        const authStore = useAuthStore();
+        const response = await api_gateway.post('/auth/login', { "identifier":username, password });
+        authStore.setAccessToken(response.data.accessToken);
+        
+        return response; 
+    } catch (error) {
+        console.error('Login failed:', error);
     }
 }
 
 export async function userRegister(name, username, email, password) {
     try {
-        const res = await fetch("http://localhost:8010/auth/register", {
-            method: "POST",
-
-            body: JSON.stringify({
-                name,
-                username,
-                email,
-                password
-            })
-        });
-            return res
+        const res = await api_gateway.post('auth/register', {name, username, email, password});
+        
+        return res
     } catch (error) {
-        console.error("Fetch error:", error);
+        console.error("Register error:", error);
         throw error;
     }
 }
