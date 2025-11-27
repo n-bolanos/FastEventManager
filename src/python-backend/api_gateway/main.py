@@ -91,6 +91,10 @@ async def delete_event(event_id: int, request: Request):
 async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}/share", request)
 
+@app.get("/events/{event_id}")
+async def share_event(event_id: int, request: Request):
+    return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}", request)
+
 
 #LOGIN ROUTES
 
