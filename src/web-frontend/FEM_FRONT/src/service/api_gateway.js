@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth';
 const api_gateway = axios.create({
   baseURL: 'http://localhost:8010',
   withCredentials: true, 
+  validateStatus: () => true,
 });
 
 api_gateway.interceptors.request.use(config => {

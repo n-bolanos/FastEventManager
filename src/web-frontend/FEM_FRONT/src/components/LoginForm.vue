@@ -15,12 +15,13 @@ const emit = defineEmits([
 async function verifyCredentials(){
     const res = await checkCredentials(username.value, password.value);
     if (res.status === 200){
-        const data = await res.json();
+        const data = await res.body;
         console.log(data)
         // TODO: Save JWT in cookies
         emit('isVerified')
     } else if (res.status === 409){
-        const msg = await res.text()
+        console.log(res)
+        const msg = await res.data
         error_msj.value = 'Sorry! - '+ msg
     }
     
