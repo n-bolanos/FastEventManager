@@ -24,7 +24,7 @@ async function createAccount(){
             emit('created')
             error_msj.value = ''
         } else if (res.status === 409){
-            const msg = await res.text()
+            const msg = await res.data
             error_msj.value = 'Error - '+ msg
         }
         

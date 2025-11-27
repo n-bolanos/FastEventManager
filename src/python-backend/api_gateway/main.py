@@ -105,7 +105,7 @@ async def auth_login(request: Request):
     if auth_resp.status_code != 200:
         return auth_resp
     
-    data = auth_resp.json()
+    data = json.loads(auth_resp.body)
     access_token = data.get("accessToken")
     refresh_token = data.get("refreshToken")
 
