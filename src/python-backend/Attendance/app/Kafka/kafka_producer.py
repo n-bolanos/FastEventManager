@@ -1,9 +1,11 @@
+from os import environ as env
 from kafka import KafkaProducer, errors
 import json
 from datetime import datetime
 
 try:
-    producer = KafkaProducer(bootstrap_servers='localhost:9092',
+    address = env.get("KAFKA_ADDRESS")
+    producer = KafkaProducer(bootstrap_servers=address,
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 except errors.NoBrokersAvailable:
     print('''The current kafka server is down, check the url or startup the image.
