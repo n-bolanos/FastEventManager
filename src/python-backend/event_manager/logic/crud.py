@@ -13,6 +13,8 @@ def create_event(db: Session, event: EventCreate):
 def get_events_by_user(db: Session, user_id: int):
     return db.query(Event).filter(Event.creator_id == user_id).all()
 
+def get_event_by_id(db: Session, event_id: int):
+    return db.query(Event).filter(Event.event_id == event_id).all()
 
 def delete_event(db: Session, event_id: int):
     event = db.query(Event).filter(Event.event_id == event_id).first()
