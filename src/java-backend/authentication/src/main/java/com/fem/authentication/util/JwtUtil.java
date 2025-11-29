@@ -60,7 +60,12 @@ public class JwtUtil {
      * @return Boolean value reporting if JWT is expired.
      */
     public boolean isExpired(String token) {
-        return JWT.decode(token).getExpiresAt().before(new Date());
+        Optional<DecodedJWT> decodedOpt = verify(token);
+        if (decodedOpt.isEmpty()) {
+            return false;
+        }
+        DecodedJWT decoded = decodedOpt.get();
+        return decoded.getExpiresAt().before(new Date());
     }
 
     /**
