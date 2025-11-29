@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import {create_event} from "../assets/js/Event.js"
 const eventName = ref('')
 const location = ref('')
 const date = ref('')
@@ -11,18 +12,6 @@ const emit = defineEmits([
   'created',
 ])
 
-function checkConstraints(){
-    if (checkTimes()){
-        msj_time.value = ""
-        return checkDate()
-    }
-    msj_time.value = "Time start must be earlier that time end."
-}
-
-function checkDate(){
-    return true
-}
-
 function checkTimes(){
     const digits_start = timeStart.value.split(':');
     const digits_end = timeEnd.value.split(':');
@@ -30,9 +19,18 @@ function checkTimes(){
     return Number(digits_end[0]) > Number(digits_start[0])
 }
 function createEvent(){
-    if (checkConstraints()){
-        emit('created')
+
+    const event_data = {
+            name_event: eventName.value,
+            date: date.value,
+            time: timeStart.value + "-" + timeEnd.value,
+            location: location.value,
+            attendance_capacity: capacity.value,
+            creator_id: 1
+        
     }
+    create_event(event_data)
+    emit('created')
 
 }
 function back(){
@@ -41,16 +39,16 @@ function back(){
 </script>
 <template>
     <button @click="back"
-            class="text-grey-300 underline text-lg inline-flex h-fit w-fit
+            class="text-grey-300 underline text-lg inline-flex h-fit w-fit ml-2
             hover:text-gray-500 hover:cursor-pointer">
     back
     </button>
     <form @submit.prevent="createEvent"
-        class="grid grid-cols-2 gap-1">
-        <div class="grid grid-rows-3 font-poppins h-full text-xl p-10">
-            <div class="flex flex-col justify-start">
+        class="flex flex-row overflow-y-auto overflow-x-auto">
+        <div class="grid grid-rows-3 font-poppins h-full text-xl p-10 min-w-s">
+            <div class="flex flex-col justify-start flex-wrap">
                 <label class="block mb-2">Event Name</label>
-                <input type="text" v-model="eventName" placeholder="  Enter the event name" required class="box-content text-l bg-gray-200 text-gray-500
+                <input type="text" v-model="eventName" placeholder=" Enter the event name" required class="box-content text-l bg-gray-200 text-gray-500
                 rounded-2xl w-full text-lg pt-2 pb-2 pl-2"/>
             </div>
             <div class="flex flex-col justify-start">
@@ -64,13 +62,13 @@ function back(){
                 rounded-2xl w-full text-lg pt-2 pb-2 pl-2"/>
             </div>
         </div>
-        <div class="grid grid-rows-3 font-poppins h-full text-xl p-10">
+        <div class="grid grid-rows-3 font-poppins h-full text-xl p-10 min-w-s">
             <div class="flex flex-col justify-start">
                 <label class="block mb-2">Location</label>
                 <input type="text" v-model="location" placeholder="  Enter the location" required class="box-content text-l bg-gray-200 text-gray-500
                 rounded-2xl  w-full text-lg pt-2 pb-2 pl-2"/>
             </div>
-            <div class="flex flex-row justify-around">
+            <div class="flex flex-row justify-around wrap min-w-50">
                 <div class="flex flex-col justify-start">
                     <label class="block mb-2">Time Start</label>
                     <input type="time" v-model="timeStart" required class="box-content text-l pl-2 bg-gray-200 text-gray-500

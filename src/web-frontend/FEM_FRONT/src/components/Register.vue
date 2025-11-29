@@ -15,7 +15,7 @@ const props = defineProps({
         default: " "
     },
     contact: {
-        type: Number,
+        type: String,
         default: " "
     },
     waitlist: {

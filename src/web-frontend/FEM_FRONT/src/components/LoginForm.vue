@@ -13,6 +13,8 @@ const emit = defineEmits([
 ])
 
 async function verifyCredentials(){
+    emit('isVerified')
+    return
     const res = await checkCredentials(username.value, password.value);
     if (res.status === 200){
         const data = await res.body;

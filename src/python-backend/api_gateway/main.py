@@ -92,7 +92,7 @@ async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}/share", request)
 
 @app.get("/events/{event_id}")
-async def share_event(event_id: int, request: Request):
+async def get_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}", request)
 
 
@@ -108,7 +108,7 @@ async def auth_login(request: Request):
 
     if auth_resp.status_code != 200:
         return auth_resp
-    
+
     data = json.loads(auth_resp.body)
     access_token = data.get("accessToken")
     refresh_token = data.get("refreshToken")
@@ -144,5 +144,5 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", port=8010, reload=True)
+    uvicorn.run("main:app", port=8010)
 
