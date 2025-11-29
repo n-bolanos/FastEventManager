@@ -1,5 +1,7 @@
 <script setup>
 import LoginIcon from '../icons/IconLogin.vue'
+import { useAuthStore } from '@/stores/auth'
+import { logout } from '@/assets/js/Authentication'
 
 const props = defineProps({
     msj: {
@@ -21,7 +23,10 @@ const emit = defineEmits([
 ])
 
 
-function switchLogin() {
+async function switchLogin() {
+    const authStore = useAuthStore();
+    const res = await logout();
+    authStore.logout();
     emit('LogOut')
 }
 
