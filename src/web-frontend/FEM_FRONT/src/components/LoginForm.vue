@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PwdIcon from "../icons/IconPwd.vue"
 import {checkCredentials} from "../assets/js/Authentication.js"
+import { useAuthStore } from '@/stores/auth'
 const username = ref('')
 const password = ref('')
 const error_msj = ref('')
@@ -13,14 +14,14 @@ const emit = defineEmits([
 ])
 
 async function verifyCredentials(){
+    const authStore = useAuthStore()
     const res = await checkCredentials(username.value, password.value);
     if (res.status === 200){
-        const data = await res.body;
+        const data = await res.data;
         console.log(data)
-        // TODO: Save JWT in cookies
+        authStore.setToken(data.accessToken)
         emit('isVerified')
     } else if (res.status === 409){
-        console.log(res)
         const msg = await res.data
         error_msj.value = 'Sorry! - '+ msg
     }
