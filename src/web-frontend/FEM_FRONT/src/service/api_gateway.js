@@ -16,12 +16,24 @@ api_gateway.interceptors.request.use(config => {
 });
 
 api_gateway.interceptors.response.use(
-  response => response,
+  response => {
+    const authStore = useAuthStore();
+
+    // detect silent refresh
+    if (response.headers["access-token-refreshed"] === "true") {
+      console.log("Access token silently refreshed");
+      authStore.setToken(response.data?.accessToken);
+    }
+    return response
+  },
   async error => {
-    if (error.response?.status === 401) {
-      const newToken = await refreshToken();
-      error.config.headers.Authorization = `Bearer ${newToken}`;
-      return api_gateway.request(error.config);
+    const authStore = useAuthStore();
+
+    if (error.response?.status === 401 ){
+      if(response.data?.code === "LOGOUT_REQUIRED"){
+        authStore.logout();
+      }
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

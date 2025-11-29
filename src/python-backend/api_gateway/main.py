@@ -5,6 +5,8 @@ import httpx
 from dotenv import load_dotenv
 from fastapi.responses import JSONResponse, Response
 import json
+from datetime import datetime
+import jwt
 
 
 load_dotenv()
@@ -15,6 +17,9 @@ ATTENDANCE_SVC = os.getenv("ATTENDANCE_SVC_URL", "http://localhost:8000")
 EVENT_SVC = os.getenv("EVENT_SVC_URL", "http://localhost:8020")
 LOGIN_SVC = os.getenv("LOGIN_SVC_URL", "http://localhost:8070")
 FRONT = os.getenv("FRONT_URL", "http://localhost:8050")
+
+#COOKIES
+REFRESH_TOKEN_COOKIE = os.getenv("REFRESH_TOKEN_COOKIE_NAME", "refreshToken")
 
 #FASTAPI APP
 
@@ -27,6 +32,76 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# HELPERS
+
+def is_token_expired(token: str) -> bool:
+    """Check if JWT token is expired."""
+    try:
+        payload = jwt.decode(token)
+        exp = payload.get("exp")
+        return exp * 1000 < datetime.now().timestamp() * 1000
+    except:
+        return True
+    
+async def refresh_access_token(refresh_token: str) -> str | None:
+    """Call auth service to refresh the access token."""
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{LOGIN_SVC}/auth/refresh",
+                json={"refreshToken": refresh_token}
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("accessToken")
+    except Exception as e:
+        print(f"Refresh failed: {e}")
+    return None
+
+@app.middleware("http")
+async def validate_and_refresh_middleware(request: Request, call_next):
+    """
+    Function to validate the JWT tokens before each request sent from FrontEnd.
+    It also tries to auto-refresh access JWT.
+    """
+    
+    # Public endpoints that skip auth
+    public_paths = ["/auth/login", "/auth/register", "/health", "/auth/userinfo", "/auth/logout"]
+    if request.url.path in public_paths:
+        return await call_next(request)
+    
+
+    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+    if not refresh_token or is_token_expired(refresh_token):
+        return JSONResponse(
+                {"detail": "Invalid refresh token", "code": "LOGOUT_REQUIRED"},
+                status_code=401)
+    
+    access_token = None
+    jwt_refreshed = False
+    auth_header = request.headers.get("Authorization", "")
+    
+    if auth_header.startswith("Bearer "):
+        access_token = auth_header.split(" ")[1]
+    
+    if not access_token:
+        return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+    
+
+    if is_token_expired(access_token): # Second try to refresh Access JWT (Non-expired)
+        access_token = await refresh_access_token(refresh_token)
+        jwt_refreshed = True
+    
+    if not access_token:
+        return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+       
+    request.headers.__dict__["authorization"] = f"Bearer {access_token}"
+    
+    response = await call_next(request)
+    response.headers["Access-Token-Refreshed"] = "true" if jwt_refreshed else "false"
+    return response
+    
 
 #GENERIC PROXY FUNCTION
 
@@ -44,9 +119,10 @@ async def proxy_request(method: str, url: str, request: Request):
         try:
             data = response.json()
             return JSONResponse(content=data, status_code=response.status_code)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # Aquí manejamos respuestas vacías
-            return Response(content=response.text or "", status_code=response.status_code)
+            print(e)
+            return Response(content=response.text, status_code=response.status_code)
 
 #ATTENDANCE ROUTES
 
@@ -109,27 +185,56 @@ async def auth_login(request: Request):
     if auth_resp.status_code != 200:
         return auth_resp
     
-    data = json.loads(auth_resp.body)
+    data = json.loads(auth_resp.body.decode("utf-8"))
     access_token = data.get("accessToken")
     refresh_token = data.get("refreshToken")
 
-    response = Response(
-        content=f'{{"accessToken":"{access_token}"}}',
-        media_type="application/json",
-        status_code=auth_resp.status_code
+    response = JSONResponse(
+    content={"accessToken": access_token},
+    status_code=auth_resp.status_code
     )
 
     # Set refresh token in httpOnly cookie
     response.set_cookie(
-        key="refreshToken",
+        key=REFRESH_TOKEN_COOKIE,
         value=refresh_token,
         httponly=True,
-        secure=True,
-        path="/auth/refresh",
+        secure=False,
+        samesite="lax",
+        path="/auth",
         max_age=24*60*60
     )
 
     return response
+
+@app.get("/auth/logout")
+async def auth_logout():
+    """Clear refresh token cookie."""
+    response = JSONResponse({"detail": "Logged out"})
+    response.delete_cookie(key=REFRESH_TOKEN_COOKIE, path="/auth", samesite="lax")
+    return response
+
+@app.post("/auth/refresh")
+async def auth_refresh(request: Request):
+    """Refresh access token using httpOnly refresh token."""
+    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+    
+    if not refresh_token:
+        return JSONResponse({"detail": "No refresh token"}, status_code=401)
+    
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{LOGIN_SVC}/auth/refresh",
+            json={"refreshToken": refresh_token}
+        )
+    
+    if resp.status_code != 200:
+        return JSONResponse({"detail": "Refresh failed"}, status_code=401)
+    
+    data = resp.json()
+    new_access_token = data.get("accessToken")
+    
+    return JSONResponse({"token": new_access_token, "code": "SUCCESFUL_REFRESH"}, status_code=200)
 
 @app.post("/auth/userinfo")
 async def auth_userinfo(request: Request):
