@@ -7,3 +7,9 @@ automatically created.
 
 The microservices that uses the authentication service connects to port 3307 and the schema is
 automatically created.
+
+# Whole compose
+Run the following command.
+```
+docker compose --project-name "desired-name" up --build
+```

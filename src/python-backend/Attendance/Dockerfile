@@ -1,13 +1,9 @@
-FROM python:3.12
+FROM astral/uv:python3.12-bookworm-slim
 
 WORKDIR /app
 COPY . .
 
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
 RUN uv sync
-
-ENV KAFKA_ADDRESS="kafka:9092"
 
 EXPOSE 8000
 
