@@ -55,7 +55,8 @@ services:
       - "8000:8000"
 
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
     networks:
       - mail
@@ -95,6 +96,13 @@ services:
           /opt/kafka/bin/kafka-storage.sh format -t $$CLUSTER_ID -c /opt/kafka/config/server.properties &&
           /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
     
+    healthcheck:
+      test: ["CMD", "bash", "-c", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
     networks:
       - mail
       
@@ -103,13 +111,24 @@ services:
     image: mysql:8.0
     container_name: auth_mysql
     restart: always
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: authdb
+
     ports:
       - "3307:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    
     networks:
       - auth
 
@@ -130,8 +149,10 @@ services:
       - "8070:8070"
 
     depends_on:
-      - mysql
-      - kafka
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
     networks:
       - auth
@@ -153,7 +174,8 @@ services:
       - "8090:8090"
 
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
     networks:
       - mail
