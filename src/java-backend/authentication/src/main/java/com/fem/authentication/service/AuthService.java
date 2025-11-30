@@ -81,7 +81,7 @@ public class AuthService {
         User u = authenticated.orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
         String token = jwtUtil.generateToken(Long.toString(u.getId()));
         String refresh = jwtUtil.generateRefreshToken(Long.toString(u.getId()));
-        return new LoginResponse(token, refresh);
+        return new LoginResponse(token, refresh, Long.toString(u.getId()));
     }
 
     /**
