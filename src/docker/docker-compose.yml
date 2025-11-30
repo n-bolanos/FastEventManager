@@ -1,0 +1,45 @@
+services:
+  attendance:
+
+    build:
+      context: ../python-backend/attendance/
+      dockerfile: Dockerfile
+
+    image: attendance:1.0
+
+    environment:
+      KAFKA_ADDRESS: "kafka:9092"
+
+    ports:
+      - "8000:8000"
+
+    networks:
+      - mail
+
+  kafka:
+
+    image: apache/kafka:3.7.0
+
+    container_name: fem_kafka
+
+    ports:
+      - "9092:9092"   # external access
+      - "9093:9093"   # controller port
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+    networks:
+      - mail
+
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kafka_data:
+
+networks:
+  mail:

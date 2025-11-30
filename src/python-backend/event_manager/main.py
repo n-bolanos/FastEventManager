@@ -14,4 +14,4 @@ def home():
     return {"message": "Event Manager working"}
 
 if __name__ == "__main__":
-    run("main:app", port=8020, reload=True)
+    run("main:app", port=8020)

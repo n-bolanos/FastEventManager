@@ -168,7 +168,7 @@ async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}/share", request)
 
 @app.get("/events/{event_id}")
-async def share_event(event_id: int, request: Request):
+async def get_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}", request)
 
 
@@ -249,5 +249,5 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", port=8010, reload=True)
+    uvicorn.run("main:app", port=8010)
 
