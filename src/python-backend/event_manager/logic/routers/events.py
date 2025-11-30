@@ -35,10 +35,9 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{event_id}/share")
 def share_event(event_id: int):
-    link = f"https://miapp.com/formulario?event_id={event_id}"
+    link = f"http://frontend:8050/attendance/{event_id}"
     return {"share_link": link}
 
 @router.get("/{event_id}")
 def get_event(event_id: int, db: Session = Depends(get_db)):
     return {"response": crud.get_event_by_id(db, event_id)}
-
