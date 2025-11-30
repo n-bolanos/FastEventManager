@@ -1,5 +1,19 @@
 services:
   
+  frontend:
+
+    build:
+      context: ../web-frontend/FEM_FRONT/
+      dockerfile: Dockerfile
+
+    image: fem-frontend:1.0
+
+    ports:
+      - "8050:8050"
+
+    networks:
+      - frontend
+
   gateway:
 
     build:
@@ -21,6 +35,7 @@ services:
 
     networks:
       - backend
+      - frontend
 
   attendance:
 
@@ -138,3 +153,4 @@ networks:
   mail:
   backend:
   auth:
+  frontend:
