@@ -1,15 +1,12 @@
 import { useToast } from 'vue-toastification'
+import api_gateway from '@/service/api_gateway';
+
 const toast = useToast();
 
 export async function create_event(event_data){
 
     try {
-        const res = await fetch(
-        `http://localhost:8010/events/`,
-        { method: "post" ,
-        body:JSON.stringify(event_data)
-        },
-        )
+        const res = await api_gateway.post("events/", req);
         toast.success("El evento ha sido creado!\n(Si no lo ves reflejado, recarga para verlo en la lista de eventos)")
         return await res.json()
     } catch (error) {
@@ -21,11 +18,8 @@ export async function create_event(event_data){
 export async function get_events(user_id){
 
     try {
-        const res = await fetch(
-        `http://localhost:8010/events/user/${user_id}`,
-        { method: "get" }
-        )
-        const ans = await res.json()
+        const res = await api_gateway.get(`/events/user/${user_id}`, { withCredentials: true })
+        const ans = await res.data
         return ans
     } catch (error) {
         console.error("Fetch error:", error);

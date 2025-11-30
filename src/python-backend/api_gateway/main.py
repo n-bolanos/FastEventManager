@@ -18,8 +18,6 @@ EVENT_SVC = os.getenv("EVENT_SVC_URL", "http://localhost:8020")
 LOGIN_SVC = os.getenv("LOGIN_SVC_URL", "http://localhost:8070")
 FRONT = os.getenv("FRONT_URL", "http://localhost:8050")
 
-#COOKIES
-REFRESH_TOKEN_COOKIE = os.getenv("REFRESH_TOKEN_COOKIE_NAME", "refreshToken")
 
 #FASTAPI APP
 
@@ -30,7 +28,7 @@ app.add_middleware(
     allow_origins=[FRONT],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "X-Refresh-Token", "Content-Type"],
 )
 
 # HELPERS
@@ -38,8 +36,9 @@ app.add_middleware(
 def is_token_expired(token: str) -> bool:
     """Check if JWT token is expired."""
     try:
-        payload = jwt.decode(token)
+        payload = jwt.decode(token, options={"verify_signature": False})
         exp = payload.get("exp")
+        print(exp * 1000 < datetime.now().timestamp() * 1000)
         return exp * 1000 < datetime.now().timestamp() * 1000
     except:
         return True
@@ -65,6 +64,9 @@ async def validate_and_refresh_middleware(request: Request, call_next):
     Function to validate the JWT tokens before each request sent from FrontEnd.
     It also tries to auto-refresh access JWT.
     """
+
+    if request.method == "OPTIONS":
+        return await call_next(request)
     
     # Public endpoints that skip auth
     public_paths = ["/auth/login", "/auth/register", "/health", "/auth/userinfo", "/auth/logout"]
@@ -72,8 +74,10 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         return await call_next(request)
     
 
-    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+    refresh_token = request.headers.get("x-refresh-token")
+    print(refresh_token)
     if not refresh_token or is_token_expired(refresh_token):
+        print("a")
         return JSONResponse(
                 {"detail": "Invalid refresh token", "code": "LOGOUT_REQUIRED"},
                 status_code=401)
@@ -86,6 +90,7 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         access_token = auth_header.split(" ")[1]
     
     if not access_token:
+        print("b")
         return JSONResponse({"detail": "Unauthorized"}, status_code=401)
     
 
@@ -94,9 +99,10 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         jwt_refreshed = True
     
     if not access_token:
+        print("c")
         return JSONResponse({"detail": "Unauthorized"}, status_code=401)
        
-    request.headers.__dict__["authorization"] = f"Bearer {access_token}"
+    request.state.access_token = f"Bearer {access_token}"
     
     response = await call_next(request)
     response.headers["Access-Token-Refreshed"] = "true" if jwt_refreshed else "false"
@@ -168,7 +174,7 @@ async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}/share", request)
 
 @app.get("/events/{event_id}")
-async def get_event(event_id: int, request: Request):
+async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}", request)
 
 
@@ -189,35 +195,18 @@ async def auth_login(request: Request):
     access_token = data.get("accessToken")
     refresh_token = data.get("refreshToken")
 
-    response = JSONResponse(
-    content={"accessToken": access_token},
-    status_code=auth_resp.status_code
+    return JSONResponse(
+        content={
+            "accessToken": access_token,
+            "refreshToken": refresh_token
+        },
+        status_code=auth_resp.status_code
     )
-
-    # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key=REFRESH_TOKEN_COOKIE,
-        value=refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        path="/auth",
-        max_age=24*60*60
-    )
-
-    return response
-
-@app.get("/auth/logout")
-async def auth_logout():
-    """Clear refresh token cookie."""
-    response = JSONResponse({"detail": "Logged out"})
-    response.delete_cookie(key=REFRESH_TOKEN_COOKIE, path="/auth", samesite="lax")
-    return response
 
 @app.post("/auth/refresh")
 async def auth_refresh(request: Request):
     """Refresh access token using httpOnly refresh token."""
-    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+    refresh_token = request.headers.get("X-Refresh-Token")
     
     if not refresh_token:
         return JSONResponse({"detail": "No refresh token"}, status_code=401)
@@ -249,5 +238,5 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", port=8010)
+    uvicorn.run("main:app", port=8010, reload=True)
 
