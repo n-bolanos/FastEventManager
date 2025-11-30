@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
-// import checkCredentials from "../assets/js/Login"
+
 const name = ref('')
 const email = ref('')
 const number = ref('')

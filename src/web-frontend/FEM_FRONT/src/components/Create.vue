@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import {create_event} from "../assets/js/Event.js"
+import { useAuthStore } from "@/stores/auth"
+
+const creatorId = useAuthStore().user_id
 const eventName = ref('')
 const location = ref('')
 const date = ref('')
@@ -12,12 +15,6 @@ const emit = defineEmits([
   'created',
 ])
 
-function checkTimes(){
-    const digits_start = timeStart.value.split(':');
-    const digits_end = timeEnd.value.split(':');
-    
-    return Number(digits_end[0]) > Number(digits_start[0])
-}
 function createEvent(){
 
     const event_data = {
@@ -26,16 +23,17 @@ function createEvent(){
             time: timeStart.value + "-" + timeEnd.value,
             location: location.value,
             attendance_capacity: capacity.value,
-            creator_id: 1
-        
+            creator_id: creatorId
     }
     create_event(event_data)
     emit('created')
 
 }
+
 function back(){
     emit('created')
 }
+
 </script>
 <template>
     <button @click="back"

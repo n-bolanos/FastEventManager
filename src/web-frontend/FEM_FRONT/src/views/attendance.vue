@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted  } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import NavBar from "../components/NavBar.vue"
 import IdForm from "../components/Document.vue"
 import AttendanceForm from "../components/AttendanceForm.vue"
@@ -10,7 +10,7 @@ const route = useRoute()
 const event_id = route.params.id 
 const msj = ref("Attendance")
 const invalid_event = ref(false)
-const is_looking = ref( true )
+const is_looking = ref(true)
 const personId = ref("")
 
 async function loadEvent() {
@@ -20,17 +20,17 @@ async function loadEvent() {
     invalid_event.value = true
   }
 }
+
 function save_id(id){
   personId.value = id
   is_looking.value = false
 }
 
-
 function register(name, email, number){
   is_looking.value = true
 }
 
-onMounted(
+onBeforeMount(
   () => loadEvent()
 )
 </script>

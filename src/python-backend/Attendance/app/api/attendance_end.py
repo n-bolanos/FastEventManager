@@ -56,8 +56,8 @@ async def confirm_attendance(confirmation: AttendanceService, capacity: int, eve
 
         if capacity == current+1:
             #bring the event owner's mail and name
-            response = get(f"localhost:8070/auth/login/?creator_id={creator_id}")
-            msg_capacity = Capacity(response.e_mail,
+            response = get(f"login:8070/auth/userinfo/?id={creator_id}")
+            msg_capacity = Capacity(response.email,
                                     response.name,
                                     event_name,
                                     capacity)
