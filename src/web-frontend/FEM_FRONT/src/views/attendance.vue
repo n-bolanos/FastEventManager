@@ -9,16 +9,26 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const event_id = route.params.id 
 const msj = ref("Attendance")
-const invalid_event = ref(false)
+const invalid_event = ref(true)
 const is_looking = ref(true)
 const personId = ref("")
+const event_info = ref({})
 
 async function loadEvent() {
   const event = await confirm_event(event_id)
-  console.log(event.response)
   if (event.response.length === 0){
     invalid_event.value = true
-  }
+  } else {
+      invalid_event.value = false
+      const values = event.response[0]
+      event_info.value = {
+              capacity: values.attendance_capacity,
+              event_name: values.name_event,
+              date: values.date,
+              location: values.location,
+              creator_id: values.creator_id
+      }
+    }
 }
 
 function save_id(id){
@@ -44,7 +54,7 @@ onBeforeMount(
     </main>
     <main v-if="!invalid_event" class="flex justify-center bg-neutral-50 m-10 mt-8 rounded-2xl min-h-100">
         <IdForm v-if="is_looking" @create="save_id"/>
-        <AttendanceForm v-if="!is_looking" @created&updated="register"/>
+        <AttendanceForm :event_id="event_id" :person_id="person_id" :event_info="event_info" v-if="!is_looking" @created&updated="register"/>
     </main>
 
 </template>
