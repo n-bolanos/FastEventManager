@@ -17,7 +17,7 @@ function checkId(){
         id.value=""
     }
     else {
-        emit('create', id.value)
+        emit('create', String(id.value))
     }
 }
 </script>
@@ -31,7 +31,7 @@ function checkId(){
                 <div class="flex flex-col justify-items-start text-xl mb-4">
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
                         <IdIcon class="mx-4 bg-purple-100"/>
-                        <input v-model="id" required 
+                        <input v-model="id" required type="text"
                         class= "box-content text-xl bg-purple-100"
                         placeholder="Enter your personal ID" />
                     </div>

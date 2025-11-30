@@ -25,7 +25,7 @@ app = FastAPI(title="API Gateway")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONT],
+    allow_origins=[FRONT, "http://localhost:8050"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["Authorization", "X-Refresh-Token", "Content-Type"],
@@ -112,31 +112,26 @@ async def validate_and_refresh_middleware(request: Request, call_next):
 async def proxy_request(method: str, url: str, request: Request):
     async with httpx.AsyncClient() as client:
         body = await request.json() if method in ["POST", "PUT"] else None
-
         response = await client.request(
             method,
             url,
             json=body,
-            params=request.query_params
+            params=dict(request.query_params)
         )
-
         try:
-            data = response.json()
-            return JSONResponse(content=data, status_code=response.status_code)
-        except json.JSONDecodeError as e:
-            # Aquí manejamos respuestas vacías
-            print(e)
-            return Response(content=response.text, status_code=response.status_code)
+            return JSONResponse(status_code=response.status_code, content=response.json())
+        except json.JSONDecodeError:
+            return JSONResponse(status_code=response.status_code, content={"message": response.text})
 
 #ATTENDANCE ROUTES
 
-@app.post("/attendance/confirm")
+@app.post("/attendance/confirm/")
 async def attendance_confirm(request: Request):
-    return await proxy_request("POST", f"{ATTENDANCE_SVC}/attendance/confirm", request)
+    return await proxy_request("POST", f"{ATTENDANCE_SVC}/attendance/confirm/", request)
 
-@app.put("/attendance/update")
+@app.put("/attendance/update/")
 async def attendance_update(request: Request):
-    return await proxy_request("PUT", f"{ATTENDANCE_SVC}/attendance/update", request)
+    return await proxy_request("PUT", f"{ATTENDANCE_SVC}/attendance/update/", request)
 
 @app.get("/attendance/event/{event_id}")
 async def attendance_get(event_id: int, request: Request):

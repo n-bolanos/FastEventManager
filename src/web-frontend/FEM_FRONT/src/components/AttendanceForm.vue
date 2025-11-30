@@ -3,10 +3,26 @@ import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
+import { update_or_create, confirm } from '@/assets/js/Attendance.js'
 
 const name = ref('')
 const email = ref('')
 const number = ref('')
+
+const props = defineProps({
+    event_id: {
+        type: Number,
+        default: 0
+    },
+    person_id: {
+        type: String,
+        default: 0
+    },
+    event_info: {
+        type: Object,
+        default: () => ({})
+    }
+})
 
 const emit = defineEmits([
   'created&updated',
@@ -20,9 +36,21 @@ function checkNumber(){
     }
     return true
 }
-function submitAns(){
+async function submitAns(){
     if (!checkNumber()){return}
-
+    
+    const ans = await update_or_create(props.person_id, props.event_id)
+    if (ans.length === 0){
+        const body = {
+            name: name.value,
+            email: email.value,
+            contact_number: number.value,
+            doc_id: props.person_id,
+            event_assistance_id: props.event_id
+        }
+        
+        await confirm(body, props.event_info)
+    }
     emit('created&updated', name.value, email.value, number.value)
 }
 </script>

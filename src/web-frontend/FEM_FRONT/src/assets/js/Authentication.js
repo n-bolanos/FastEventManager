@@ -6,7 +6,7 @@ export async function checkCredentials(username, password) {
     try {
         window.authStore = useAuthStore()
         const authStore = useAuthStore();
-        const response = await api_gateway.post('auth/login', { "identifier":username, password });
+        const response = await api_gateway.post('/auth/login', { "identifier":username, password });
         authStore.setTokens(response.data.accessToken, response.data.accessToken)
         
         return response; 
@@ -18,7 +18,7 @@ export async function checkCredentials(username, password) {
 
 export async function userRegister(name, username, email, password) {
     try {
-        const res = await api_gateway.post('auth/register', {name, username, email, password});
+        const res = await api_gateway.post('/auth/register', {name, username, email, password});
         
         return res
     } catch (error) {

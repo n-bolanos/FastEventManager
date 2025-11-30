@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const api_gateway = axios.create({
-  baseURL: 'http://gateway:8010',
+  baseURL: '/api',
   validateStatus: () => true,
 });
 

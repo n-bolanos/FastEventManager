@@ -1,6 +1,6 @@
 <script setup>
 import ShareIcon from "../icons/IconShare.vue"
-import { delete_events } from "../assets/js/Event.js"
+import { delete_events, get_share_link } from "../assets/js/Event.js"
 const props = defineProps({
     id: {
         type: Number,
@@ -32,11 +32,17 @@ async function deleteEvent(){
     await delete_events(props.id)
     emit('deletion')
 }
+
+async function shareEvent() {
+    const link = await get_share_link(props.id)
+    navigator.clipboard.writeText(link);
+    
+}
 </script>
 <template>
     <div class="flex flex-row border-2 border-purple-900 rounded-2xl max-h-[50%] items-center justify-between mx-10 w-[40%] min-w-md hover:bg-gray-300 ">
         <div class="flex flex-row bg-purple-900 items-end h-full rounded-2xl">
-            <button class="flex flex-row items-center p-2 pr-5 text-neutral-50 hover:cursor-pointer hover:text-neutral-400">
+            <button @click="shareEvent" class="flex flex-row items-center p-2 pr-5 text-neutral-50 hover:cursor-pointer hover:text-neutral-400">
                 <ShareIcon class="hover:cursor-pointer"/>
                 <label class="font-poppins text-xl underline hover:cursor-pointer">Share event</label>
             </button>

@@ -10,7 +10,7 @@ const app = createApp(App)
 
 app.use(Toast, {
   position: POSITION.BOTTOM_CENTER,
-  timeout: 5000,
+  timeout: 4000,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
