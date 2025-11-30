@@ -68,8 +68,11 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         return await call_next(request)
     
     # Public endpoints that skip auth
-    public_paths = ["/auth/login", "/auth/register", "/health", "/auth/userinfo", "/auth/logout"]
-    if request.url.path in public_paths:
+    private_paths = ["/attendance/waitlist"]
+    public_paths = ["/health", "/auth", "/attendance", "/events/verify/"]
+    is_public = any(request.url.path.startswith(prefix) for prefix in public_paths)
+    is_private = any(request.url.path.startswith(prefix) for prefix in private_paths)
+    if is_public and not is_private:
         return await call_next(request)
     
 
@@ -168,8 +171,8 @@ async def delete_event(event_id: int, request: Request):
 async def share_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}/share", request)
 
-@app.get("/events/{event_id}")
-async def share_event(event_id: int, request: Request):
+@app.get("/events/verify/{event_id}")
+async def verify_event(event_id: int, request: Request):
     return await proxy_request("GET", f"{EVENT_SVC}/events/{event_id}", request)
 
 

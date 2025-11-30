@@ -5,7 +5,9 @@ import RechargeIcon from "../icons/IconRecharge.vue"
 import { ref, onBeforeMount } from "vue"
 import { get_events } from "../assets/js/Event.js"
 import { get_attendances } from "@/assets/js/Attendance.js"
+import { useAuthStore } from "@/stores/auth"
 
+const creatorId = useAuthStore().user_id
 const isShowing = ref(false)
 
 async function switchAttendances(id = -1){
@@ -19,13 +21,13 @@ async function switchAttendances(id = -1){
 const attendances = ref([])
 const events = ref([])
 
-async function recharge(id){
-    events.value = await get_events(1)
+async function recharge(){
+    events.value = await get_events(creatorId)
 }
 onBeforeMount(
     //todo: change to the actual id
-  async() => {events.value = await get_events(1)
-            setTimeout(await recharge(1), 3000);
+  async() => {events.value = await get_events(creatorId)
+            setTimeout(await recharge(), 3000);
   }
 )
 

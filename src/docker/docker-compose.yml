@@ -11,6 +11,9 @@ services:
     ports:
       - "8050:8050"
 
+    depends_on:
+      - gateway
+
     networks:
       - frontend
 
@@ -51,6 +54,9 @@ services:
     ports:
       - "8000:8000"
 
+    depends_on:
+      - kafka
+
     networks:
       - mail
       - backend
@@ -85,12 +91,6 @@ services:
     networks:
       - mail
 
-    healthcheck:
-      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   mysql:
     image: mysql:8.0
     container_name: auth_mysql
@@ -123,12 +123,14 @@ services:
 
     depends_on:
       - mysql
+      - kafka
 
     networks:
       - auth
       - backend
 
   email:
+
     build:
       context: ../java-backend/email/
       dockerfile: Dockerfile
@@ -141,6 +143,9 @@ services:
 
     ports:
       - "8090:8090"
+
+    depends_on:
+      - kafka
 
     networks:
       - mail
