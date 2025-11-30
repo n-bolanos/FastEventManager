@@ -26,11 +26,11 @@ services:
     image: api-gateway:1.0
 
     environment:
-      ATTENDANCE_SVC_URL: attendance:8000
-      EVENT_SVC_URL: event_manager:8020
-      LOGIN_SVC_URL: login:8070
-      EMAIL_SVC_URL: kafka:8090
-      FRONT_URL: frontend:8050
+      ATTENDANCE_SVC_URL: http://attendance:8000
+      EVENT_SVC_URL: http://event_manager:8020
+      LOGIN_SVC_URL: http://login:8070
+      EMAIL_SVC_URL: http://kafka:8090
+      FRONT_URL: http://frontend:8050
       REFRESH_TOKEN_COOKIE_NAME: "refreshToken"
 
     ports:
@@ -80,6 +80,22 @@ services:
     image: apache/kafka:3.7.0
 
     container_name: fem_kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      # KRaft roles (controller and broker in same node)
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      # Cluster ID (random)
+      CLUSTER_ID: "Yd9gN3xQTluasDF8gr12ww"
+      # Listeners
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      # Mapping
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      # Voter (id)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      # Log dirs
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
 
     ports:
       - "9092:9092"   # external access
@@ -90,7 +106,7 @@ services:
 
     networks:
       - mail
-
+      
   mysql:
     image: mysql:8.0
     container_name: auth_mysql
