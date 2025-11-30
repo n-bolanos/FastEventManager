@@ -35,7 +35,7 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{event_id}/share")
 def share_event(event_id: int):
-    link = f"http://frontend:8050/attendance/{event_id}"
+    link = f"http://localhost:8050/attendance/{event_id}"
     return {"share_link": link}
 
 @router.get("/{event_id}")
