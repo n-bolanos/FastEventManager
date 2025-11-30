@@ -3,14 +3,17 @@ import { useAuthStore } from '@/stores/auth';
 
 const api_gateway = axios.create({
   baseURL: 'http://localhost:8010',
-  withCredentials: true, 
   validateStatus: () => true,
 });
 
 api_gateway.interceptors.request.use(config => {
     const authStore = useAuthStore();
-  if (authStore.accessToken) {
-    config.headers.Authorization = `Bearer ${authStore.accessToken}`;
+  if (authStore.access_token) {
+    config.headers.Authorization = `Bearer ${authStore.access_token}`;
+  }
+
+  if (authStore.refresh_token) {
+    config.headers['x-refresh-token'] = authStore.refresh_token;
   }
   return config;
 });
@@ -22,7 +25,7 @@ api_gateway.interceptors.response.use(
     // detect silent refresh
     if (response.headers["access-token-refreshed"] === "true") {
       console.log("Access token silently refreshed");
-      authStore.setToken(response.data?.accessToken);
+      authStore.setTokens(response.data?.accessToken, response.data?.refreshToken);
     }
     return response
   },

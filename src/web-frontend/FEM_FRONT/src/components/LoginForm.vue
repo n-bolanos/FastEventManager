@@ -19,7 +19,7 @@ async function verifyCredentials(){
     if (res.status === 200){
         const data = await res.data;
         console.log(data)
-        authStore.setToken(data.accessToken)
+        authStore.setTokens(data.accessToken, data.refreshToken)
         emit('isVerified')
     } else if (res.status === 409){
         const msg = await res.data
