@@ -75,23 +75,10 @@ services:
     networks:
       - backend
 
-  kafka:
 
-    image: apache/kafka:3.7.0
-
-    container_name: fem_kafka
-
-    ports:
-      - "9092:9092"   # external access
-      - "9093:9093"   # controller port
-
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-
-    networks:
-      - mail
 
   mysql:
+
     image: mysql:8.0
     container_name: auth_mysql
     restart: always
