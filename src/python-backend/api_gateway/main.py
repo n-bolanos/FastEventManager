@@ -38,7 +38,6 @@ def is_token_expired(token: str) -> bool:
     try:
         payload = jwt.decode(token, options={"verify_signature": False})
         exp = payload.get("exp")
-        print(exp * 1000 < datetime.now().timestamp() * 1000)
         return exp * 1000 < datetime.now().timestamp() * 1000
     except:
         return True
@@ -75,9 +74,7 @@ async def validate_and_refresh_middleware(request: Request, call_next):
     
 
     refresh_token = request.headers.get("x-refresh-token")
-    print(refresh_token)
     if not refresh_token or is_token_expired(refresh_token):
-        print("a")
         return JSONResponse(
                 {"detail": "Invalid refresh token", "code": "LOGOUT_REQUIRED"},
                 status_code=401)
@@ -90,7 +87,6 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         access_token = auth_header.split(" ")[1]
     
     if not access_token:
-        print("b")
         return JSONResponse({"detail": "Unauthorized"}, status_code=401)
     
 
@@ -99,7 +95,6 @@ async def validate_and_refresh_middleware(request: Request, call_next):
         jwt_refreshed = True
     
     if not access_token:
-        print("c")
         return JSONResponse({"detail": "Unauthorized"}, status_code=401)
        
     request.state.access_token = f"Bearer {access_token}"
@@ -192,16 +187,10 @@ async def auth_login(request: Request):
         return auth_resp
     
     data = json.loads(auth_resp.body.decode("utf-8"))
-    access_token = data.get("accessToken")
-    refresh_token = data.get("refreshToken")
 
-    return JSONResponse(
-        content={
-            "accessToken": access_token,
-            "refreshToken": refresh_token
-        },
-        status_code=auth_resp.status_code
-    )
+    print(data)
+
+    return data
 
 @app.post("/auth/refresh")
 async def auth_refresh(request: Request):
