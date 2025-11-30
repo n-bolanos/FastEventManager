@@ -55,7 +55,8 @@ services:
       - "8000:8000"
 
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
     networks:
       - mail
@@ -78,46 +79,56 @@ services:
   kafka:
 
     image: apache/kafka:3.7.0
-
-    container_name: fem_kafka
-    environment:
-      KAFKA_NODE_ID: 1
-      # KRaft roles (controller and broker in same node)
-      KAFKA_PROCESS_ROLES: "broker,controller"
-      # Cluster ID (random)
-      CLUSTER_ID: "Yd9gN3xQTluasDF8gr12ww"
-      # Listeners
-      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
-      # Mapping
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      # Voter (id)
-      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      # Log dirs
-      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
-
+    container_name: kafka
+    
     ports:
-      - "9092:9092"   # external access
-      - "9093:9093"   # controller port
-
+      - "9092:9092"
+    
     volumes:
+      - ./kafka/config/server.properties:/opt/kafka/config/server.properties
       - kafka_data:/var/lib/kafka/data
+    
+    command:
+      - sh
+      - -c
+      - >
+          CLUSTER_ID=$$(/opt/kafka/bin/kafka-storage.sh random-uuid) &&
+          /opt/kafka/bin/kafka-storage.sh format -t $$CLUSTER_ID -c /opt/kafka/config/server.properties &&
+          /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
+    
+    healthcheck:
+      test: ["CMD", "bash", "-c", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
     networks:
       - mail
       
   mysql:
+
     image: mysql:8.0
     container_name: auth_mysql
     restart: always
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: authdb
+
     ports:
       - "3307:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    
     networks:
       - auth
 
@@ -138,8 +149,10 @@ services:
       - "8070:8070"
 
     depends_on:
-      - mysql
-      - kafka
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
     networks:
       - auth
@@ -161,7 +174,8 @@ services:
       - "8090:8090"
 
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
     networks:
       - mail
