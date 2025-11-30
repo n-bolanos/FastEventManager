@@ -1,4 +1,27 @@
 services:
+  
+  gateway:
+
+    build:
+      context: ../python-backend/api_gateway/
+      dockerfile: Dockerfile
+
+    image: api-gateway:1.0
+
+    environment:
+      ATTENDANCE_SVC_URL: attendance:8000
+      EVENT_SVC_URL: event_manager:8020
+      LOGIN_SVC_URL: login:8070
+      EMAIL_SVC_URL: kafka:8090
+      FRONT_URL: frontend:8050
+      REFRESH_TOKEN_COOKIE_NAME: "refreshToken"
+
+    ports:
+      - "8010:8010"
+
+    networks:
+      - backend
+
   attendance:
 
     build:
@@ -15,6 +38,21 @@ services:
 
     networks:
       - mail
+      - backend
+
+  event_manager:
+
+    build:
+      context: ../python-backend/event_manager/
+      dockerfile: Dockerfile
+
+    image: event_manager:1.0
+
+    ports:
+      - "8020:8020"
+    
+    networks:
+      - backend
 
   kafka:
 
@@ -38,8 +76,65 @@ services:
       timeout: 5s
       retries: 10
 
+  mysql:
+    image: mysql:8.0
+    container_name: auth_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - auth
+
+  login:
+
+    build:
+      context: ../java-backend/authentication/
+      dockerfile: Dockerfile
+
+    image: login-service:1.0
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      AUTH_PASSWORD: mysupersecretkey123
+    ports:
+      - "8070:8070"
+
+    depends_on:
+      - mysql
+
+    networks:
+      - auth
+      - backend
+
+  email:
+    build:
+      context: ../java-backend/email/
+      dockerfile: Dockerfile
+
+    image: email-service:1.0
+
+    environment:
+      KAFKA_ADDRESS: "kafka:9092"
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+    ports:
+      - "8090:8090"
+
+    networks:
+      - mail
+
 volumes:
   kafka_data:
+  mysql_data:
 
 networks:
   mail:
+  backend:
+  auth:
