@@ -30,6 +30,7 @@ export async function confirm(body, query){
         return response;
     } catch (error) {
         console.error("Fetch error:", error);
+        console.log("Fetch error:", error.response);
         throw error;
     }
 }

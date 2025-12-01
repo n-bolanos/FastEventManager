@@ -92,8 +92,8 @@ services:
       - sh
       - -c
       - >
-          CLUSTER_ID=$$(/opt/kafka/bin/kafka-storage.sh random-uuid) &&
-          /opt/kafka/bin/kafka-storage.sh format -t $$CLUSTER_ID -c /opt/kafka/config/server.properties &&
+          CLUSTER_ID=6uEAFpzDTRChihh_Q_DoLw &&
+          /opt/kafka/bin/kafka-storage.sh format --ignore-formatted -t $$CLUSTER_ID -c /opt/kafka/config/server.properties &&
           /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
     
     healthcheck:
