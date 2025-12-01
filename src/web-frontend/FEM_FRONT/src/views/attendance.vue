@@ -32,7 +32,7 @@ async function loadEvent() {
 }
 
 function save_id(id){
-  personId.value = id
+  person_id.value = id
   is_looking.value = false
 }
 

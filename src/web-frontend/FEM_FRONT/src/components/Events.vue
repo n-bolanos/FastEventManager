@@ -43,7 +43,7 @@ onBeforeMount(
     </div>
     <div v-if="isShowing" class="flex flex-col w-full m-5 overflow-x-hidden max-h-80 max-w-full">
         <div class="flex justify-between items-start">
-            <button @click="switchAttendances"
+            <button @click="switchAttendances(-1)"
             class="text-grey-300 underline text-lg inline-flex h-fit w-4
             hover:text-gray-500 hover:cursor-pointer">back</button>
             <label class=" text-4xl h-fit">Confirmed Guest List</label>
