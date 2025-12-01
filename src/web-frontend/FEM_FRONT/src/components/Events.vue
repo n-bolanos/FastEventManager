@@ -13,8 +13,8 @@ const isShowing = ref(false)
 async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
+        console.log("hola")
         attendances.value = await get_attendances(id)
-
     }
 }
 
@@ -25,7 +25,6 @@ async function recharge(){
     events.value = await get_events(creatorId)
 }
 onBeforeMount(
-    //todo: change to the actual id
   async() => {events.value = await get_events(creatorId)
             setTimeout(await recharge(), 3000);
   }

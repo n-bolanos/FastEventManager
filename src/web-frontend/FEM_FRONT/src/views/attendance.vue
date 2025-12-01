@@ -11,7 +11,7 @@ const event_id = route.params.id
 const msj = ref("Attendance")
 const invalid_event = ref(true)
 const is_looking = ref(true)
-const personId = ref("")
+const person_id = ref("")
 const event_info = ref({})
 
 async function loadEvent() {
@@ -54,7 +54,7 @@ onBeforeMount(
     </main>
     <main v-if="!invalid_event" class="flex justify-center bg-neutral-50 m-10 mt-8 rounded-2xl min-h-100">
         <IdForm v-if="is_looking" @create="save_id"/>
-        <AttendanceForm :event_id="event_id" :person_id="personId" :event_info="event_info" v-if="!is_looking" @created&updated="register"/>
+        <AttendanceForm :event_id="event_id" :person_id="person_id" :event_info="event_info" v-if="!is_looking" @created&updated="register"/>
     </main>
 
 </template>

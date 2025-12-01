@@ -46,7 +46,7 @@ export async function update(body){
 export async function get_attendances(id) {
     try {
         const response = await api_gateway.get(`/attendance/event/${id}`);            
-        return response;
+        return response.data;
     } catch (error) {
         console.error("Fetch error:", error);
         throw error;
