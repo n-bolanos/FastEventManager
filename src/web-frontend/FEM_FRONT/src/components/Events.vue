@@ -13,7 +13,6 @@ const isShowing = ref(false)
 async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
-        console.log("hola")
         attendances.value = await get_attendances(id)
     }
 }
@@ -60,11 +59,11 @@ onBeforeMount(
                 <Register
                     class="mb-2"
                     v-for="person in attendances"
-                    :key="person.id"
-                    :id="person.id"
-                    :name="person.name"
-                    :email="person.email"
-                    :contact="person.contact"
+                    :key="person.attendanceID"
+                    :id="person.attendanceID"
+                    :name="person.nameAttendance"
+                    :email="person.emailAttendance"
+                    :contact="person.contactNumber"
                     :waitlist="person.waitlist"
                 />
             </div>
