@@ -44,7 +44,7 @@ async function submitAns(){
         const body = {
             name: name.value,
             email: email.value,
-            contact_number: number.value,
+            contact_number: String(number.value),
             doc_id: props.person_id,
             event_assistance_id: props.event_id
         }

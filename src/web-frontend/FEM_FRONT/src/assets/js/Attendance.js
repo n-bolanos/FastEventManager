@@ -25,8 +25,7 @@ export async function confirm(body, query){
     try {
         const response = await api_gateway.post(`/attendance/confirm/`, body,
             { params: {capacity : query.capacity, event_name : query.event_name, date : query.date,
-                location : query.location, creator_id : query.creator_id } }
-        );            
+                location : query.location, creator_id : query.creator_id } });
         return response;
     } catch (error) {
         console.error("Fetch error:", error);
@@ -46,8 +45,9 @@ export async function update(body){
 
 export async function get_attendances(id) {
     try {
-        const response = await api_gateway.get(`/attendance/event/${id}`);            
-        return response;
+        const response = await api_gateway.get(`/attendance/event/${id}`);      
+        console.log(response)      
+        return response.data.data;
     } catch (error) {
         console.error("Fetch error:", error);
         throw error;

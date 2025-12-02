@@ -66,7 +66,7 @@ public class EmailService {
 
             mailSender.send(message);
             
-            log.info("Successful email sending");
+            log.info("Successful email sending to {}", req.getTo());
             return new EmailResponse(
                 true,
                 UUID.randomUUID().toString(),

@@ -22,7 +22,8 @@ async function verifyCredentials(){
         authStore.setTokens(data.accessToken, data.refreshToken, data.userId)
         emit('isVerified')
     } else if (res.status === 409){
-        const msg = await res.data
+        const msg = await res.data.message
+        console.log(res);
         error_msj.value = 'Sorry! - '+ msg
     }
     

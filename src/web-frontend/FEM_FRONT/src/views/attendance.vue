@@ -11,7 +11,7 @@ const event_id = route.params.id
 const msj = ref("Attendance")
 const invalid_event = ref(true)
 const is_looking = ref(true)
-const personId = ref("")
+const person_id = ref("")
 const event_info = ref({})
 
 async function loadEvent() {
@@ -32,7 +32,7 @@ async function loadEvent() {
 }
 
 function save_id(id){
-  personId.value = id
+  person_id.value = id
   is_looking.value = false
 }
 

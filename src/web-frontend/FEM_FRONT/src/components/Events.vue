@@ -14,7 +14,6 @@ async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
         attendances.value = await get_attendances(id)
-
     }
 }
 
@@ -25,7 +24,6 @@ async function recharge(){
     events.value = await get_events(creatorId)
 }
 onBeforeMount(
-    //todo: change to the actual id
   async() => {events.value = await get_events(creatorId)
             setTimeout(await recharge(), 3000);
   }
@@ -44,7 +42,7 @@ onBeforeMount(
     </div>
     <div v-if="isShowing" class="flex flex-col w-full m-5 overflow-x-hidden max-h-80 max-w-full">
         <div class="flex justify-between items-start">
-            <button @click="switchAttendances"
+            <button @click="switchAttendances(-1)"
             class="text-grey-300 underline text-lg inline-flex h-fit w-4
             hover:text-gray-500 hover:cursor-pointer">back</button>
             <label class=" text-4xl h-fit">Confirmed Guest List</label>
@@ -61,11 +59,11 @@ onBeforeMount(
                 <Register
                     class="mb-2"
                     v-for="person in attendances"
-                    :key="person.id"
-                    :id="person.id"
-                    :name="person.name"
-                    :email="person.email"
-                    :contact="person.contact"
+                    :key="person.attendanceID"
+                    :id="person.attendanceID"
+                    :name="person.nameAttendance"
+                    :email="person.emailAttendance"
+                    :contact="person.contactNumber"
                     :waitlist="person.waitlist"
                 />
             </div>

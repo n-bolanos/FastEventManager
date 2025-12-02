@@ -105,10 +105,10 @@ class AttendanceService(BaseModel):
         async for db in get_db():
             stmt = select(Attendance).where(Attendance.eventAssistanceID == event_id)
             result = await db.execute(stmt)
-            attendance = result.scalars().all()  # return objects or None
-            if attendance is None:
+            attendances = result.scalars().all()  # return objects or None
+            if attendances is None:
                 return []
-            return [ AttendanceService.jsonify(attendance) for attendance in attendance]
+            return [ AttendanceService.jsonify(attendance) for attendance in attendances]
 
     @staticmethod
     def jsonify(attendance):
