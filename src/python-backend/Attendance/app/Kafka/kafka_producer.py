@@ -1,7 +1,10 @@
 from os import environ as env
+from dotenv import load_dotenv
 from kafka import KafkaProducer, errors
 import json
 from datetime import datetime
+
+load_dotenv()
 
 try:
     address = env.get("KAFKA_ADDRESS")

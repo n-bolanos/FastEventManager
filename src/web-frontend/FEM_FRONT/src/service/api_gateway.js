@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
+const apiUrl = import.meta.env.VITE_API_GATEWAY_URL;
+
 const api_gateway = axios.create({
-  baseURL: '/api',
+  baseURL: apiUrl,
   validateStatus: () => true,
 });
 

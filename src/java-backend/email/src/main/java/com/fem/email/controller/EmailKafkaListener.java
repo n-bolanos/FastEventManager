@@ -38,7 +38,7 @@ public class EmailKafkaListener {
      *
      * @param message raw JSON string representing an email request
      */
-    @KafkaListener(topics = "email.send", groupId = "email-service")
+    @KafkaListener(topics = "${email.topic}", groupId = "email-service")
     public void consume(String message) {
         try {
             EmailRequest req = objectMapper.readValue(message, EmailRequest.class);

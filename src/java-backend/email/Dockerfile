@@ -1,9 +1,8 @@
 FROM gradle:jdk21
 
 WORKDIR /app
-COPY . .
 
-ENV KAFKA_ADDRESS="kafka:9092"
+COPY . .
 
 EXPOSE 8090
 

@@ -3,6 +3,9 @@ FROM node:25-alpine AS build
 
 WORKDIR /app
 
+ARG VITE_API_GATEWAY_URL
+ENV VITE_API_GATEWAY_URL=$VITE_API_GATEWAY_URL
+
 # Solo copiar package.json y package-lock.json primero (cache eficiente)
 COPY package*.json ./
 

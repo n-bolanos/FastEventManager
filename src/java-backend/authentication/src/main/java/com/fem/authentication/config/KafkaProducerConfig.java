@@ -3,6 +3,7 @@ package com.fem.authentication.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.*;
@@ -16,12 +17,16 @@ import com.fem.authentication.dto.EmailRequest;
 @Configuration
 public class KafkaProducerConfig {
 
+    @Value("${kafka.address}")
+    private String bootstrapAddress;
+
     @Bean
     public ProducerFactory<String, EmailRequest> producerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
