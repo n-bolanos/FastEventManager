@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "AuthenticationApplication",
+      "request": "launch",
+      "mainClass": "com.fem.authentication.AuthenticationApplication",
+      "projectName": "authentication"
+    },
+    {
+      "type": "java",
       "name": "KafkaSimpleProducer",
       "request": "launch",
       "mainClass": "com.fem.email.KafkaSimpleProducer",
