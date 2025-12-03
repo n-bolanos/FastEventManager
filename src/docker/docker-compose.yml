@@ -5,6 +5,8 @@ services:
     build:
       context: ../web-frontend/FEM_FRONT/
       dockerfile: Dockerfile
+      args:
+        VITE_API_GATEWAY_URL: /api
 
     image: fem-frontend:1.0
 
@@ -50,6 +52,7 @@ services:
 
     environment:
       KAFKA_ADDRESS: "kafka:9092"
+      LOGIN_SVC_URL: "http://login:8070"
 
     ports:
       - "8000:8000"
@@ -141,10 +144,10 @@ services:
     image: login-service:1.0
 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      AUTH_PASSWORD: mysupersecretkey123
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/authdb"
+      AUTH_PASSWORD: "mysupersecretkey123"
+      KAFKA_ADDRESS: "kafka:9092"
+
     ports:
       - "8070:8070"
 

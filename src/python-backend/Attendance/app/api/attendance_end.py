@@ -1,7 +1,13 @@
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, status
 from app.services.AttendanceService import AttendanceService
 from app.Kafka.kafka_producer import Confirmation, Capacity, WaitList, WaitListPromotion, send_notification
 from requests import get
+
+load_dotenv()
+
+LOGIN_SVC = os.getenv("LOGIN_SVC_URL")
 
 router = APIRouter()
 
@@ -56,7 +62,7 @@ async def confirm_attendance(confirmation: AttendanceService, capacity: int, eve
 
         if capacity == current+1:
             #bring the event owner's mail and name
-            response = get(f"login:8070/auth/userinfo/?id={creator_id}")
+            response = get(f"{LOGIN_SVC}/auth/userinfo/?id={creator_id}")
             msg_capacity = Capacity(response.email,
                                     response.name,
                                     event_name,
