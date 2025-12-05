@@ -45,7 +45,7 @@ class AttendanceService(BaseModel):
         async for db in get_db():
             stmt = (
                 update(Attendance)
-                .where(Attendance.documentID == self.doc_id and Attendance.eventAssistanceID == self.event_assistance_id)
+                .where(Attendance.documentID == self.doc_id, Attendance.eventAssistanceID == self.event_assistance_id)
                 .values(nameAttendance = self.name,
                 emailAttendance = self.email,
                 contactNumber = self.contact_number)
@@ -61,7 +61,7 @@ class AttendanceService(BaseModel):
         '''
 
         async for db in get_db():
-            stmt = select(Attendance).where(Attendance.eventAssistanceID == event_id and Attendance.documentID == document)
+            stmt = select(Attendance).where(Attendance.eventAssistanceID == event_id, Attendance.documentID == document)
             result = await db.execute(stmt)
             attendance = result.scalars().all()  # return objects or None
             if attendance is None:
@@ -76,7 +76,7 @@ class AttendanceService(BaseModel):
 
         async for db in get_db():
             stmt = (update(Attendance)
-                   .where(Attendance.documentID == document and Attendance.eventAssistanceID == event_id)
+                   .where(Attendance.documentID == document, Attendance.eventAssistanceID == event_id)
                    .values(waitlist = not Attendance.waitlist)
                     )
             await db.execute(stmt)

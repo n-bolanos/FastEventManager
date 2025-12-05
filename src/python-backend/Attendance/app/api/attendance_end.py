@@ -57,6 +57,7 @@ async def confirm_attendance(confirmation: AttendanceService, capacity: int, eve
                                         location)
         try:
             send_notification(msg_conf.to_dict())
+            print("Message successfully published")
         except:
             print("Error sending the message")
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
@@ -8,6 +8,7 @@ import { update_or_create, confirm } from '@/assets/js/Attendance.js'
 const name = ref('')
 const email = ref('')
 const number = ref('')
+const isUpdating = ref(false)
 
 const props = defineProps({
     event_id: {
@@ -28,31 +29,31 @@ const emit = defineEmits([
   'created&updated',
 ])
 
-function checkNumber(){
-    number.value = +number.value
-    if (isNaN(number.value)){
-        number.value=""
-        return false
-    }
-    return true
-}
 async function submitAns(){
-    if (!checkNumber()){return}
-    
-    const ans = await update_or_create(props.person_id, props.event_id)
-    if (ans.length === 0){
-        const body = {
-            name: name.value,
-            email: email.value,
-            contact_number: String(number.value),
-            doc_id: props.person_id,
-            event_assistance_id: props.event_id
-        }
-        
-        await confirm(body, props.event_info)
+    const body = {
+        name: name.value,
+        email: email.value,
+        contact_number: String(number.value),
+        doc_id: props.person_id,
+        event_assistance_id: props.event_id
     }
+    
+    await confirm(body, props.event_info)
+    
     emit('created&updated', name.value, email.value, number.value)
 }
+
+onBeforeMount(async() => {
+    const ans = await update_or_create(props.person_id, props.event_id);
+    if (ans.length === 0){
+        isUpdating.value = false;
+    } else {
+        isUpdating.value = true;
+        number.value = ans[0].contactNumber;
+        name.value = ans[0].nameAttenadance;
+        email.value = ans[0].emailAttendance;
+    }
+  })
 </script>
 <template>
     <div class="flex flex-col justify-center items-center">

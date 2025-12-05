@@ -13,7 +13,7 @@ export async function confirm_event(event_id) {
 
 export async function update_or_create(person_id, event_id){
     try {
-        const response = await api_gateway.get(`/attendance/check/document/${person_id}/event/${event_id}`);            
+        const response = await api_gateway.get(`/attendance/check/document/${person_id}/event/${event_id}`);        
         return response.data.response;
     } catch (error) {
         console.error("Fetch error:", error);
@@ -45,8 +45,7 @@ export async function update(body){
 
 export async function get_attendances(id) {
     try {
-        const response = await api_gateway.get(`/attendance/event/${id}`);      
-        console.log(response)      
+        const response = await api_gateway.get(`/attendance/event/${id}`);         
         return response.data.data;
     } catch (error) {
         console.error("Fetch error:", error);
