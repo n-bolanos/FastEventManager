@@ -3,7 +3,10 @@ import { ref, onBeforeMount } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
-import { update_or_create, confirm } from '@/assets/js/Attendance.js'
+import { update_or_create, confirm, update } from '@/assets/js/Attendance.js'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast();
 
 const name = ref('')
 const email = ref('')
@@ -38,9 +41,27 @@ async function submitAns(){
         event_assistance_id: props.event_id
     }
     
-    await confirm(body, props.event_info)
+    if (!(isUpdating.value)){
+        const ans = await confirm(body, props.event_info)
+        if (ans == 201){
+            toast.success("You have been succesfully registered into the event.")
+            emit('created&updated', name.value, email.value, number.value)
+        }else{
+            toast.error(`Oops, womething went wrong. Error code: ${ans}`)
+        }
+
+    }else{
+        const ans = await update(body)
+        if (ans == 202){
+            toast.success("You have succesfully updated your information.")
+            emit('created&updated', name.value, email.value, number.value)
+            isUpdating.value = false
+        }else{
+            toast.error(`Oops, womething went wrong. Error code: ${ans}`)
+        }
+    }
     
-    emit('created&updated', name.value, email.value, number.value)
+    
 }
 
 onBeforeMount(async() => {
@@ -50,7 +71,7 @@ onBeforeMount(async() => {
     } else {
         isUpdating.value = true;
         number.value = ans[0].contactNumber;
-        name.value = ans[0].nameAttenadance;
+        name.value = ans[0].nameAttendance;
         email.value = ans[0].emailAttendance;
     }
   })
@@ -81,7 +102,7 @@ onBeforeMount(async() => {
                     Contact Number
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
                         <PhoneIcon class="mx-4 bg-purple-100"/>
-                        <input v-model="number" required type="text"
+                        <input v-model="number" required type="tel" pattern="[0-9]{10}"
                         class= "box-content text-xl bg-purple-100"
                         placeholder="Enter your number" />
                     </div>
