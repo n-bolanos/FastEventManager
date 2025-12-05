@@ -7,7 +7,7 @@ import {confirm_event} from "../assets/js/Attendance.js"
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const event_id = route.params.id 
+const event_id = +route.params.id 
 const msj = ref("Attendance")
 const invalid_event = ref(true)
 const is_looking = ref(true)

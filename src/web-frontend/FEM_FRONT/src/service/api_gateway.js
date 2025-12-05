@@ -26,7 +26,6 @@ api_gateway.interceptors.response.use(
 
     // detect silent refresh
     if (response.headers["access-token-refreshed"] === "true") {
-      console.log("Access token silently refreshed");
       authStore.setTokens(response.data?.accessToken, response.data?.refreshToken);
     }
     return response
