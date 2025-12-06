@@ -2,6 +2,25 @@
 import { ref } from 'vue'
 import IdIcon from "../icons/IconId.vue"
 
+const props = defineProps({
+    name: {
+        type: String,
+        default: ""
+    },
+    location: {
+        type: String,
+        default: ""
+    },
+    date: {
+        type: String,
+        default: ""
+    },
+    time: {
+        type: String,
+        default: ""
+    }
+})
+
 const emit = defineEmits([
   'update',
   'create'
@@ -23,17 +42,23 @@ function checkId(){
 </script>
 <template>
     <div class="flex flex-col justify-center items-center">
+        <label class="font-poppins text-3xl mb-2 text-purple-900">
+            {{ props.name }}
+        </label>
+        <div class="flex justify-between mb-3 [&>label]:font-poppins text-xl ">
+            <label>Location: {{ props.location }}</label> <label class="px-4">Date: {{ props.date }}</label> <label>Time: {{ props.time }}</label>
+        </div>
         <form @submit.prevent="checkId"
         class="flex flex-col justify-center items-center">
-                <label class="font-poppins text-3xl mb-5">
-                    Personal ID
+                <label class="font-poppins text-2xl mb-5">
+                    Please enter you personal ID
                 </label>
                 <div class="flex flex-col justify-items-start text-xl mb-4">
                     <div class="flex flex-row items-center justify-between border-2 border-gray-500 bg-purple-100">
                         <IdIcon class="mx-4 bg-purple-100"/>
                         <input v-model="id" required type="text"
                         class= "box-content text-xl bg-purple-100"
-                        placeholder="Enter your personal ID" />
+                        placeholder="Personal ID" />
                     </div>
                 </div>
                 <p class="text-red-500 text-lg">{{error_msj}}</p>

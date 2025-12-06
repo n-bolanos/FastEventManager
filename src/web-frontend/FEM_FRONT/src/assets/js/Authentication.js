@@ -1,7 +1,6 @@
 import { useAuthStore } from '@/stores/auth';
 import api_gateway from '@/service/api_gateway';
 
-
 export async function checkCredentials(username, password) {
     try {
         window.authStore = useAuthStore()

@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import {userRegister} from '../assets/js/Authentication.js'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast();
 const name = ref('')
 const email = ref('')
 const username = ref('')
@@ -21,10 +24,12 @@ async function createAccount(){
     if (password_conf.value === password.value){
         const res = await userRegister(name.value, username.value, email.value, password.value)
         if (res.status === 201){
+            toast.success("The account has been registered. Status 201.")
             emit('created')
             error_msj.value = ''
         } else if (res.status === 409){
-            const msg = await res.data
+            const msg = await res.data.message
+            toast.error("An error has ocurred during the register.")
             error_msj.value = 'Error - '+ msg
         }
         

@@ -14,6 +14,10 @@ const props = defineProps({
         type: String,
         default: " "
     },
+    time: {
+        type: String,
+        default: ""
+    },
     capacity: {
         type: Number,
         default: " "
@@ -51,6 +55,7 @@ async function shareEvent() {
         hover:cursor-pointer">
             <label class="text-2xl hover:cursor-pointer w-[25%]">{{name}}</label>
             <label class="text-xl pt-2 pb-2 hover:cursor-pointer">{{ date }}</label>
+            <label class="text-xl pt-2 pb-2 hover:cursor-pointer">{{ time }}</label>
             <label class="text-xl hover:cursor-pointer">{{capacity}} people</label>
         </div>
         <button @click="deleteEvent" class="bg-purple-900 text-neutral-50 rounded-2xl p-2 px-3 mr-2 ml-2 text-xl
