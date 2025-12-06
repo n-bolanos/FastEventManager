@@ -30,6 +30,7 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
+    @SuppressWarnings("null")
     @Bean
     public KafkaTemplate<String, EmailRequest> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
