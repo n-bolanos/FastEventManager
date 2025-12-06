@@ -9,8 +9,6 @@ package com.fem.authentication.service;
 import com.fem.authentication.dto.*;
 import com.fem.authentication.entity.User;
 import com.fem.authentication.repository.UserRepository;
-import com.fem.authentication.service.AuthService;
-import com.fem.authentication.service.strategy.CredentialStrategy;
 import com.fem.authentication.service.strategy.UsernameCredentialStrategy;
 import com.fem.authentication.service.strategy.EmailCredentialStrategy;
 import com.fem.authentication.util.JwtUtil;
@@ -54,6 +52,7 @@ public class AuthServiceTest {
     }
 
     //-------------------------- REGISTER TESTS ------------------------------
+    @SuppressWarnings("null")
     @Test
     void testRegisterSuccess() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");
@@ -70,6 +69,7 @@ public class AuthServiceTest {
         assertEquals(req.email(), saved.getEmail());
     }
 
+        @SuppressWarnings("null")
         @Test
     void testPasswrodHashing() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");
@@ -85,6 +85,7 @@ public class AuthServiceTest {
         assertTrue(saved.getPasswordHash().startsWith("$2a"));
     }
 
+    @SuppressWarnings("null")
     @Test
     void testRegisterEmailExists() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");

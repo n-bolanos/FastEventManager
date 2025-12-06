@@ -46,7 +46,8 @@ public class AuthService {
      * @param request login request containing email and raw password
      * @throws IllegalArgumentException if the email is already registered
      */
-     public void register(RegisterRequest req) {
+     @SuppressWarnings("null")
+    public void register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
             throw new IllegalArgumentException("Email already used");
         }
