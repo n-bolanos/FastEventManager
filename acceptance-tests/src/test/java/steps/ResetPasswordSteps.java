@@ -17,10 +17,6 @@ public class ResetPasswordSteps {
     private String email;
     private Response response;
 
-    // -----------------------------
-    // GIVEN
-    // -----------------------------
-
     @Given("an existing user with email {string}")
     public void an_existing_user_with_email(String email) throws IOException {
         this.email = email;
@@ -43,7 +39,6 @@ public class ResetPasswordSteps {
     @Given("no user exists with email {string}")
     public void no_user_exists_with_email(String email) {
         this.email = email;
-        // se asume BD limpia por Hooks
     }
 
     @Given("a password reset request with:")
@@ -52,10 +47,6 @@ public class ResetPasswordSteps {
 
         this.email = row.get("email");
     }
-
-    // -----------------------------
-    // WHEN
-    // -----------------------------
 
     @When("the user submits the password reset request")
     public void the_user_submits_the_password_reset_request() throws IOException {
@@ -72,10 +63,6 @@ public class ResetPasswordSteps {
         TestContext.lastResponse = response;
     }
 
-    // -----------------------------
-    // THEN
-    // -----------------------------
-
     @Then("the system should send a password reset link to {string}")
     public void the_system_should_send_a_password_reset_link_to(String email) {
         // Aquí normalmente mockearías el servicio de email.
@@ -84,3 +71,4 @@ public class ResetPasswordSteps {
     }
 
 }
+
