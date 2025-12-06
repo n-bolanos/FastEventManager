@@ -17,10 +17,6 @@ public class LoginSteps {
     private static final String BASE_URL = "http://localhost:8010/auth/login";
     private static final String REGISTER_URL = "http://localhost:8010/auth/register";
 
-    // -----------------------------
-    // GIVEN
-    // -----------------------------
-
     @Given("a user with username {string} and password {string} exists")
     public void a_user_exists(String username, String password) throws IOException {
 
@@ -56,10 +52,6 @@ public class LoginSteps {
         );
     }
 
-    // -----------------------------
-    // WHEN
-    // -----------------------------
-
     @When("the user submits the login request")
     public void the_user_submits_the_login_request() throws IOException {
 
@@ -80,10 +72,6 @@ public class LoginSteps {
 
     }
 
-    // -----------------------------
-    // THEN
-    // -----------------------------
-
     @Then("the system should authenticate the user")
     public void the_system_should_authenticate_the_user() {
         assertEquals(200, response.code());
@@ -95,3 +83,4 @@ public class LoginSteps {
         assertTrue(json.contains("token"));
     }
 }
+
