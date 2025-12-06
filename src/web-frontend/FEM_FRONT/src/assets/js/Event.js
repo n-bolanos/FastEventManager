@@ -45,7 +45,7 @@ export async function delete_events(event_id){
     try {
         const res = await api_gateway.delete(`/events/${event_id}`)
         const ans = await res.data
-        toast.success("El evento ha sido eliminado!\n(Si sigue en la lista de eventos, recarga para ver los cambios reflejados en la lista de eventos)")
+        toast.success("The event has been succesfully deleted.")
         return ans
     } catch (error) {
         console.error("Fetch error:", error);

@@ -14,6 +14,8 @@ async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
         attendances.value = await get_attendances(id)
+    }else{
+        attendances.value = []
     }
 }
 
@@ -35,7 +37,7 @@ onBeforeMount(
     <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-90">
         <singleEvent @details="switchAttendances" @deletion="recharge" 
         class= "mb-4" v-for="event in events" :key="event.event_id"  
-        :id="event.event_id ":name="event.name_event" 
+        :id="event.event_id " :name="event.name_event" :time="event.time"
         :capacity="event.attendance_capacity" :date="event.date"/>
         <label v-if="events.length === 0" class="text-5xl m-auto mt-20 font-poppins">No events found, create one!</label>
 

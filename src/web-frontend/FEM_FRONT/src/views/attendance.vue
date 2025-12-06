@@ -24,6 +24,7 @@ async function loadEvent() {
       event_info.value = {
               capacity: values.attendance_capacity,
               event_name: values.name_event,
+              time: values.time,
               date: values.date,
               location: values.location,
               creator_id: values.creator_id
@@ -53,7 +54,7 @@ onBeforeMount(
         404 Not Found
     </main>
     <main v-if="!invalid_event" class="flex justify-center bg-neutral-50 m-10 mt-8 rounded-2xl min-h-100">
-        <IdForm v-if="is_looking" @create="save_id"/>
+        <IdForm v-if="is_looking" :name="event_info.event_name" :location="event_info.location" :date="event_info.date" :time="event_info.time" @create="save_id"/>
         <AttendanceForm :event_id="event_id" :person_id="person_id" :event_info="event_info" v-if="!is_looking" @created&updated="register"/>
     </main>
 
