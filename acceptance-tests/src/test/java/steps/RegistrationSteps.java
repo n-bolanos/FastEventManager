@@ -15,16 +15,8 @@ public class RegistrationSteps {
 
     OkHttpClient client = new OkHttpClient();
 
-    // -----------------------------
-    //   CONSTANTES
-    // -----------------------------
 
     private static final String BASE_URL = "http://localhost:8010/auth/register";
-
-
-    // -----------------------------
-    //   GIVEN STEPS
-    // -----------------------------
 
     @Given("a registration request with:")
     public void createRequest(DataTable data) {
@@ -40,12 +32,10 @@ public class RegistrationSteps {
 
     @Given("the email {string} is not registered")
     public void the_email_is_not_registered(String email) {
-        // Se asume estado limpio — test environment
     }
 
     @Given("the username {string} is not taken")
     public void the_username_is_not_taken(String username) {
-        // Igual — se asume base limpia
     }
 
     @Given("the user already exists with email {string}")
@@ -98,10 +88,6 @@ public class RegistrationSteps {
         client.newCall(req).execute().close();
     }
 
-    // -----------------------------
-    //   WHEN STEPS
-    // -----------------------------
-
     @When("the user submits the registration request")
     public void the_user_submits_the_registration_request() throws IOException {
 
@@ -127,10 +113,6 @@ public class RegistrationSteps {
         the_user_submits_the_registration_request();
     }
 
-    // -----------------------------
-    //   THEN STEPS
-    // -----------------------------
-
     @Then("the system should create the user in the database")
     public void the_system_should_create_the_user_in_the_database() {
         assertEquals(201, response.code());
@@ -138,7 +120,6 @@ public class RegistrationSteps {
 
     @Then("the system should send a confirmation email to {string}")
     public void the_system_should_send_a_confirmation_email(String email) {
-        // No se puede validar directamente sin mocks
     }
 
     @Then("the system should throw an error {string}")
@@ -147,3 +128,4 @@ public class RegistrationSteps {
         assertTrue(json.contains(expectedMessage));
     }
 }
+
