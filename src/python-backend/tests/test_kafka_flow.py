@@ -5,7 +5,7 @@ def test_kafka_alive(client):
     r = client.get("/health")
     
     if r.status_code != 200:
-        print(f"\n❌ Health check failed")
+        print(f"\n Health check failed")
         print(f"Status: {r.status_code}")
         print(f"Response: {r.text}")
     

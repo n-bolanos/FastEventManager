@@ -46,7 +46,7 @@ def test_confirm_attendance(client, auth_headers):
     )
 
     if r.status_code not in (200, 201):
-        print(f"\n❌ Confirm attendance failed")
+        print(f"\n Confirm attendance failed")
         print(f"Status: {r.status_code}")
         print(f"Response: {r.text}")
 
@@ -61,7 +61,7 @@ def test_get_event_attendance(client, auth_headers):
     r = client.get("/attendance/event/1", headers=auth_headers)
     
     if r.status_code != 200:
-        print(f"\n❌ Get attendance failed")
+        print(f"\n Get attendance failed")
         print(f"Status: {r.status_code}")
         print(f"Response: {r.text}")
     

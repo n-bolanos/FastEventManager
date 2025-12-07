@@ -35,12 +35,12 @@ def tokens_data(test_user):
             timeout=60.0
         ) as client:
             # Wait for services
-            print("\n🔍 Waiting for services...")
+            print("\n Waiting for services...")
             for i in range(30):
                 try:
                     health = await client.get("/health")
                     if health.status_code == 200:
-                        print("✅ Services ready")
+                        print(" Services ready")
                         break
                 except:
                     if i == 29:
@@ -48,7 +48,7 @@ def tokens_data(test_user):
                     await asyncio.sleep(1)
             
             # Register
-            print(f"\n📝 Registering: {test_user['email']}")
+            print(f"\n Registering: {test_user['email']}")
             try:
                 await client.post("/auth/register", json={
                     "name": test_user["name"],
@@ -60,7 +60,7 @@ def tokens_data(test_user):
                 pass
             
             # Login
-            print("\n🔑 Logging in...")
+            print("\n Logging in...")
             login_resp = await client.post("/auth/login", json={
                 "identifier": test_user["email"],
                 "password": test_user["password"]
@@ -69,7 +69,7 @@ def tokens_data(test_user):
             if login_resp.status_code != 200:
                 raise Exception(f"Login failed: {login_resp.text}")
             
-            print("✅ Login successful")
+            print(" Login successful")
             return login_resp.json()
     
     loop = asyncio.new_event_loop()

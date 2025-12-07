@@ -15,7 +15,7 @@ def test_create_event(client, auth_headers):
     r = client.post("/events/", json=event, headers=auth_headers)
     
     if r.status_code not in (200, 201):
-        print(f"\n❌ Create event failed")
+        print(f"\n Create event failed")
         print(f"Status: {r.status_code}")
         print(f"Response: {r.text}")
     
@@ -34,7 +34,7 @@ def test_get_event_by_user(client, auth_headers):
     r = client.get("/events/user/1", headers=auth_headers)
     
     if r.status_code != 200:
-        print(f"\n❌ Get events failed")
+        print(f"\n Get events failed")
         print(f"Status: {r.status_code}")
         print(f"Response: {r.text}")
     
