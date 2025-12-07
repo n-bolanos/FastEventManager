@@ -1,0 +1,10 @@
+steps\LoginSteps.class
+RunCucumberTest.class
+steps\AuthSteps.class
+steps\CommonSteps.class
+steps\TestContext.class
+steps\LoginRequest.class
+steps\RegistrationSteps.class
+steps\ViewGuestsSteps.class
+steps\ResetPasswordSteps.class
+steps\RegisterRequest.class
