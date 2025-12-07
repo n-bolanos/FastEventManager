@@ -83,4 +83,3 @@ public class LoginSteps {
         assertTrue(json.contains("token"));
     }
 }
-

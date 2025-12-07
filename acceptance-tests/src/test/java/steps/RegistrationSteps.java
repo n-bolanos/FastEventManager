@@ -15,7 +15,6 @@ public class RegistrationSteps {
 
     OkHttpClient client = new OkHttpClient();
 
-
     private static final String BASE_URL = "http://localhost:8010/auth/register";
 
     @Given("a registration request with:")
@@ -120,6 +119,7 @@ public class RegistrationSteps {
 
     @Then("the system should send a confirmation email to {string}")
     public void the_system_should_send_a_confirmation_email(String email) {
+        // No se puede validar directamente sin mocks
     }
 
     @Then("the system should throw an error {string}")
@@ -128,4 +128,3 @@ public class RegistrationSteps {
         assertTrue(json.contains(expectedMessage));
     }
 }
-
