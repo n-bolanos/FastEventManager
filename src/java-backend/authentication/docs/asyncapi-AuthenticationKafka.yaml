@@ -1,0 +1,115 @@
+asyncapi: '2.6.0'
+info:
+  title: Authentication microservice - Event API
+  version: '0.1.0'
+  description: |
+    This microservice publishes email notifications when a new user
+    successfully registers or requests a password reset. Messages are
+    published to the `email.send` Kafka topic and processed by the
+    Email Notification Service.
+
+servers:
+  local:
+    url: localhost:9092
+    protocol: kafka
+  docker:
+    url: kafka:9092
+    protocol: kafka
+
+channels:
+  email.send:
+    publish:
+      summary: Publishes email requests triggered by the SignUp service.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/SuccessfulRegisterMessage'
+          - $ref: '#/components/messages/PasswordResetMessage'
+
+components:
+  messages:
+
+    SuccessfulRegisterMessage:
+      name: SuccessfulRegisterMessage
+      payload:
+        $ref: '#/components/schemas/SuccessfulRegisterPayload'
+      examples:
+        - payload:
+            to: "user@example.com"
+            subject: "User Registered"
+            type: "SUCCESSFUL_REGISTER"
+            params:
+              name: "John Doe"
+
+    PasswordResetMessage:
+      name: PasswordResetMessage
+      payload:
+        $ref: '#/components/schemas/PasswordResetPayload'
+      examples:
+        - payload:
+            to: "user@example.com"
+            subject: "Reset your password"
+            type: "PASSWORD_RESET"
+            params:
+              name: "John Doe"
+              token: "823912"
+
+  schemas:
+
+    # Shared base structure
+    BaseEmailPayload:
+      type: object
+      required:
+        - to
+        - subject
+        - type
+        - params
+      properties:
+        to:
+          type: string
+          description: Recipient email address
+        subject:
+          type: string
+          description: Email subject line
+        type:
+          type: string
+        params:
+          type: object
+          description: Dynamic parameters depending on the email type
+
+    # SUCCESSFUL_REGISTER
+    SuccessfulRegisterPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["SUCCESSFUL_REGISTER"]
+            params:
+              $ref: '#/components/schemas/SuccessfulRegisterParams'
+
+    SuccessfulRegisterParams:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    # PASSWORD_RESET
+    PasswordResetPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["PASSWORD_RESET"]
+            params:
+              $ref: '#/components/schemas/PasswordResetParams'
+
+    PasswordResetParams:
+      type: object
+      required: [name, token]
+      properties:
+        name:
+          type: string
+        token:
+          type: string

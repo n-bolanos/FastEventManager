@@ -1,0 +1,408 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastEventManager - System API",
+    "version": "0.1.0",
+    "description": "Consolidated OpenAPI specification for the system HTTP APIs (Authentication, Attendance, Event Manager)."
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create a new user account",
+        "description": "Endpoint to create a new user account. Validate name, username, email and password before creating.",
+        "operationId": "register_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {}
+          },
+          "409": {
+            "description": "Conflict - Email already used or validation error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticate User",
+        "description": "Endpoint to obtain a JWT. Accepts either email or username as the identifier.",
+        "operationId": "login_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Invalid credentials",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh Access Token",
+        "description": "Endpoint to obtain a new Access JWT. Accepts a not-expired refresh JWT.",
+        "operationId": "refresh_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token expired",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/userinfo/{user_id}": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get User Information",
+        "description": "Endpoint to retrieve information about the authenticated user.",
+        "operationId": "userinfo_auth__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "title": "User Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User information retrieved successfully",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserInfoResponse" } }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "text/plain": { "schema": { "type": "string" } } } }
+        }
+      }
+    },
+
+    "/attendance/": {
+      "get": {
+        "tags": ["Attendance"],
+        "summary": "Check Status",
+        "description": "Check service status",
+        "operationId": "check_status_attendance__get",
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } } }
+      }
+    },
+    "/attendance/confirm/": {
+      "post": {
+        "tags": ["Attendance"],
+        "summary": "Confirm Attendance",
+        "description": "Endpoint to confirm attendance to an event.",
+        "operationId": "confirm_attendance_attendance_confirm__post",
+        "parameters": [
+          { "name": "capacity", "in": "query", "required": true, "schema": { "type": "integer", "title": "Capacity" } },
+          { "name": "event_name", "in": "query", "required": true, "schema": { "type": "string", "title": "Event Name" } },
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "title": "Date" } },
+          { "name": "location", "in": "query", "required": true, "schema": { "type": "string", "title": "Location" } },
+          { "name": "creator_id", "in": "query", "required": true, "schema": { "type": "integer", "title": "Creator Id" } }
+        ],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AttendanceService" } } } },
+        "responses": {
+          "201": { "description": "Successful Response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConfirmationRes" } } } },
+          "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } }
+        }
+      }
+    },
+    "/attendance/update/": {
+      "put": {
+        "tags": ["Attendance"],
+        "summary": "Update Attendance",
+        "description": "Endpoint to update the data of an attendance to an event.",
+        "operationId": "update_attendance_attendance_update__put",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AttendanceService" } } } },
+        "responses": {
+          "202": { "description": "Successful Response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConfirmationRes" } } } },
+          "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } }
+        }
+      }
+    },
+    "/attendance/event/{event_id}": {
+      "get": {
+        "tags": ["Attendance"],
+        "summary": "Get Attendances",
+        "description": "Endpoint to retrieve the attendances of an event.",
+        "operationId": "get_attendances_attendance_event__event_id__get",
+        "parameters": [ { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } } ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+    "/attendance/check/document/{document_id}/event/{event_id}": {
+      "get": {
+        "tags": ["Attendance"],
+        "summary": "Check If Confirmed",
+        "description": "Check if a user with document (document_id) has confirmed his/her attendance to the event(event_id)",
+        "operationId": "check_if_confirmed_attendance_check_document__document_id__event__event_id__get",
+        "parameters": [
+          { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } },
+          { "name": "document_id", "in": "path", "required": true, "schema": { "type": "string", "title": "Document Id" } }
+        ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+    "/attendance/waitlist/switch/id/{document}/event/{event_id}": {
+      "put": {
+        "tags": ["Attendance"],
+        "summary": "Switch Waitlist Status",
+        "description": "Switch the waitlist status of an user for a specified event.",
+        "operationId": "switch_waitlist_status_attendance_waitlist_switch_id__document__event__event_id__put",
+        "parameters": [
+          { "name": "document", "in": "path", "required": true, "schema": { "type": "string", "title": "Document" } },
+          { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } },
+          { "name": "event_name", "in": "query", "required": true, "schema": { "type": "string", "title": "Event Name" } },
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "title": "Date" } },
+          { "name": "location", "in": "query", "required": true, "schema": { "type": "string", "title": "Location" } }
+        ],
+        "responses": { "202": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+
+    "/events/": {
+      "post": {
+        "tags": ["Events"],
+        "summary": "Create Event",
+        "operationId": "create_event_events__post",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EventCreate" } } } },
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EventResponse" } } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+    "/events/user/{user_id}": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get User Events",
+        "operationId": "get_user_events_events_user__user_id__get",
+        "parameters": [ { "name": "user_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "User Id" } } ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/EventResponse" } } } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+    "/events/{event_id}": {
+      "delete": {
+        "tags": ["Events"],
+        "summary": "Delete Event",
+        "operationId": "delete_event_events__event_id__delete",
+        "parameters": [ { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } } ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      },
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get Event",
+        "operationId": "get_event_events__event_id__get",
+        "parameters": [ { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } } ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    },
+    "/events/{event_id}/share": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Share Event",
+        "operationId": "share_event_events__event_id__share_get",
+        "parameters": [ { "name": "event_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Event Id" } } ],
+        "responses": { "200": { "description": "Successful Response", "content": { "application/json": { "schema": {} } } }, "422": { "description": "Validation Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "title": "LoginRequest",
+        "description": "Request payload to authenticate a user (identifier can be username or email)",
+        "required": [ "identifier", "password" ],
+        "properties": {
+          "identifier": { "type": "string", "title": "Identifier" },
+          "password": { "type": "string", "title": "Password" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "title": "LoginResponse",
+        "description": "Response returned after successful authentication",
+        "required": [ "accessToken", "refreshToken", "userId" ],
+        "properties": {
+          "accessToken": { "type": "string", "title": "Access Token" },
+          "refreshToken": { "type": "string", "title": "Refresh Token" },
+          "userId": { "type": "string", "title": "User Id" }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "title": "RegisterRequest",
+        "description": "Request payload to register a new user",
+        "required": [ "name", "username", "email", "password" ],
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "username": { "type": "string", "title": "Username" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "password": { "type": "string", "title": "Password" }
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "title": "RefreshRequest",
+        "required": [ "refreshToken" ],
+        "properties": { "refreshToken": { "type": "string", "title": "Refresh Token" } }
+      },
+      "RefreshResponse": {
+        "type": "object",
+        "title": "RefreshResponse",
+        "required": [ "refreshed", "AccessToken" ],
+        "properties": { "refreshed": { "type": "boolean", "title": "Refreshed" }, "AccessToken": { "type": "string", "title": "Access Token" } }
+      },
+      "UserInfoResponse": {
+        "type": "object",
+        "title": "UserInfoResponse",
+        "required": [ "email", "name" ],
+        "properties": { "email": { "type": "string", "format": "email", "title": "Email" }, "name": { "type": "string", "title": "Name" } }
+      },
+
+      "AttendanceService": {
+        "type": "object",
+        "title": "AttendanceService",
+        "required": [ "name", "email", "contact_number", "doc_id", "event_assistance_id" ],
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "contact_number": { "type": "string", "title": "Contact Number" },
+          "doc_id": { "type": "string", "title": "Doc Id" },
+          "waitlist": { "anyOf": [ { "type": "boolean" }, { "type": "null" } ], "title": "Waitlist", "default": false },
+          "event_assistance_id": { "type": "integer", "title": "Event Assistance Id" }
+        }
+      },
+      "ConfirmationRes": {
+        "type": "object",
+        "title": "ConfirmationRes",
+        "required": [ "name", "email", "contact_number", "doc_id", "event_assistance_id" ],
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "contact_number": { "type": "string", "title": "Contact Number" },
+          "doc_id": { "type": "string", "title": "Doc Id" },
+          "waitlist": { "anyOf": [ { "type": "boolean" }, { "type": "null" } ], "title": "Waitlist", "default": false },
+          "event_assistance_id": { "type": "integer", "title": "Event Assistance Id" }
+        }
+      },
+
+      "EventCreate": {
+        "type": "object",
+        "title": "EventCreate",
+        "required": [ "name_event", "date", "time", "location", "attendance_capacity", "creator_id" ],
+        "properties": {
+          "name_event": { "type": "string", "title": "Name Event" },
+          "date": { "type": "string", "title": "Date" },
+          "time": { "type": "string", "title": "Time" },
+          "location": { "type": "string", "title": "Location" },
+          "attendance_capacity": { "type": "integer", "title": "Attendance Capacity" },
+          "creator_id": { "type": "integer", "title": "Creator Id" }
+        }
+      },
+      "EventResponse": {
+        "type": "object",
+        "title": "EventResponse",
+        "required": [ "event_id", "name_event", "date", "time", "location", "attendance_capacity", "confirmed_attendance", "creator_id" ],
+        "properties": {
+          "event_id": { "type": "integer", "title": "Event Id" },
+          "name_event": { "type": "string", "title": "Name Event" },
+          "date": { "type": "string", "title": "Date" },
+          "time": { "type": "string", "title": "Time" },
+          "location": { "type": "string", "title": "Location" },
+          "attendance_capacity": { "type": "integer", "title": "Attendance Capacity" },
+          "confirmed_attendance": { "type": "integer", "title": "Confirmed Attendance" },
+          "creator_id": { "type": "integer", "title": "Creator Id" }
+        }
+      },
+
+      "HTTPValidationError": {
+        "type": "object",
+        "title": "HTTPValidationError",
+        "properties": {
+          "detail": { "type": "array", "title": "Detail", "items": { "$ref": "#/components/schemas/ValidationError" } }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "title": "ValidationError",
+        "required": [ "loc", "msg", "type" ],
+        "properties": {
+          "loc": { "type": "array", "title": "Location", "items": { "anyOf": [ { "type": "string" }, { "type": "integer" } ] } },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        }
+      }
+    }
+  }
+}
