@@ -1,0 +1,488 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "FastAPI",
+		"version": "0.1.0"
+	},
+	"paths": {
+		"/attendance/": {
+			"get": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Check Status",
+				"description": "Check service status",
+				"operationId": "check_status_attendance__get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/attendance/confirm/": {
+			"post": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Confirm Attendance",
+				"description": "Endpoint to confirm attendance to an event.\n\nFill the body with a Attendance JSON containing:\n    name:str\n    email:EmailStr\n    contact_number:str\n    doc_id:str\n    waitlist:bool|None = False\n    event_assistance_id:int\n\nRemember to fill up all the query parameters too.",
+				"operationId": "confirm_attendance_attendance_confirm__post",
+				"parameters": [
+					{
+						"name": "capacity",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Capacity"
+						}
+					},
+					{
+						"name": "event_name",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Event Name"
+						}
+					},
+					{
+						"name": "date",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Date"
+						}
+					},
+					{
+						"name": "location",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Location"
+						}
+					},
+					{
+						"name": "creator_id",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Creator Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AttendanceService"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConfirmationRes"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/attendance/update/": {
+			"put": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Update Attendance",
+				"description": "Endpoint to update the data of an attendance to an event.",
+				"operationId": "update_attendance_attendance_update__put",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AttendanceService"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConfirmationRes"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/attendance/event/{event_id}": {
+			"get": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Get Attendances",
+				"description": "Endpoint to retrieve the attendances of an event.",
+				"operationId": "get_attendances_attendance_event__event_id__get",
+				"parameters": [
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/attendance/check/document/{document_id}/event/{event_id}": {
+			"get": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Check If Confirmed",
+				"description": "Check if a user with document (document_id) has confirmed \nhis/her attendance to the event(event_id)",
+				"operationId": "check_if_confirmed_attendance_check_document__document_id__event__event_id__get",
+				"parameters": [
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					},
+					{
+						"name": "document_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Document Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/attendance/waitlist/switch/id/{document}/event/{event_id}": {
+			"put": {
+				"tags": [
+					"Attendance"
+				],
+				"summary": "Switch Waitlist Status",
+				"description": "Switch the waitlist status of an user for a specified event.",
+				"operationId": "switch_waitlist_status_attendance_waitlist_switch_id__document__event__event_id__put",
+				"parameters": [
+					{
+						"name": "document",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Document"
+						}
+					},
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					},
+					{
+						"name": "event_name",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Event Name"
+						}
+					},
+					{
+						"name": "date",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Date"
+						}
+					},
+					{
+						"name": "location",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"title": "Location"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/": {
+			"get": {
+				"summary": "Health Check",
+				"operationId": "health_check__get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"AttendanceService": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"title": "Name"
+					},
+					"email": {
+						"type": "string",
+						"format": "email",
+						"title": "Email"
+					},
+					"contact_number": {
+						"type": "string",
+						"title": "Contact Number"
+					},
+					"doc_id": {
+						"type": "string",
+						"title": "Doc Id"
+					},
+					"waitlist": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Waitlist",
+						"default": false
+					},
+					"event_assistance_id": {
+						"type": "integer",
+						"title": "Event Assistance Id"
+					}
+				},
+				"type": "object",
+				"required": [
+					"name",
+					"email",
+					"contact_number",
+					"doc_id",
+					"event_assistance_id"
+				],
+				"title": "AttendanceService",
+				"description": "Handles all the crud operations and \nservices needed for an attendance."
+			},
+			"ConfirmationRes": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"title": "Name"
+					},
+					"email": {
+						"type": "string",
+						"format": "email",
+						"title": "Email"
+					},
+					"contact_number": {
+						"type": "string",
+						"title": "Contact Number"
+					},
+					"doc_id": {
+						"type": "string",
+						"title": "Doc Id"
+					},
+					"waitlist": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"title": "Waitlist",
+						"default": false
+					},
+					"event_assistance_id": {
+						"type": "integer",
+						"title": "Event Assistance Id"
+					}
+				},
+				"type": "object",
+				"required": [
+					"name",
+					"email",
+					"contact_number",
+					"doc_id",
+					"event_assistance_id"
+				],
+				"title": "ConfirmationRes",
+				"description": "Confirmation and update success response"
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": {
+							"$ref": "#/components/schemas/ValidationError"
+						},
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "integer"
+								}
+							]
+						},
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": {
+						"type": "string",
+						"title": "Message"
+					},
+					"type": {
+						"type": "string",
+						"title": "Error Type"
+					}
+				},
+				"type": "object",
+				"required": [
+					"loc",
+					"msg",
+					"type"
+				],
+				"title": "ValidationError"
+			}
+		}
+	}
+}

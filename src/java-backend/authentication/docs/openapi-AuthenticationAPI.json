@@ -1,0 +1,420 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Authentication microservice",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create a new user account",
+        "description": "Endpoint to create a new user account. Validate name, username, email and password before creating.",
+        "operationId": "register_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9._\\-]{3,30}$"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "pattern": "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {}
+          },
+          "409": {
+            "description": "Conflict - Email already used or validation error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticate User",
+        "description": "Endpoint to obtain a JWT. Accepts either email or username as the identifier.",
+        "operationId": "login_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "password"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Email or username. If contains '@' treated as email and validated accordingly."
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Invalid credentials",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh Access Token",
+        "description": "Endpoint to obtain a new Access JWT. Accepts a not-expired refresh JWT.",
+        "operationId": "refresh_auth__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshed": {
+                      "type": "boolean"
+                    },
+                    "AccessToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/userinfo/{user_id}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get User Information",
+        "description": "Endpoint to retrieve information about the authenticated user.",
+        "operationId": "userinfo_auth__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "title": "LoginRequest",
+        "description": "Request payload to authenticate a user (identifier can be username or email)",
+        "required": [
+          "identifier",
+          "password"
+        ],
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "title": "Identifier"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "title": "LoginResponse",
+        "description": "Response returned after successful authentication",
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "userId"
+        ],
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "userId": {
+            "type": "string",
+            "title": "User Id"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "title": "RegisterRequest",
+        "description": "Request payload to register a new user",
+        "required": [
+          "name",
+          "username",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "title": "RefreshRequest",
+        "description": "Request payload to refresh access token using a refresh token",
+        "required": [
+          "refreshToken"
+        ],
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        }
+      },
+      "RefreshResponse": {
+        "type": "object",
+        "title": "RefreshResponse",
+        "description": "Response indicating whether the token was refreshed and the new access token",
+        "required": [
+          "refreshed",
+          "AccessToken"
+        ],
+        "properties": {
+          "refreshed": {
+            "type": "boolean",
+            "title": "Refreshed"
+          },
+          "AccessToken": {
+            "type": "string",
+            "title": "Access Token"
+          }
+        }
+      },
+      "UserInfoRequest": {
+        "type": "object",
+        "title": "UserInfoRequest",
+        "description": "Request payload to fetch user information by id",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Id"
+          }
+        }
+      },
+      "UserInfoResponse": {
+        "type": "object",
+        "title": "UserInfoResponse",
+        "description": "Minimal user info returned from the authentication service",
+        "required": [
+          "email",
+          "name"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "title": "ValidationError",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "properties": {
+          "loc": {
+            "type": "array",
+            "title": "Location",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        }
+      }
+    }
+  }
+}
