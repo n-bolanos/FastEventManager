@@ -1,0 +1,80 @@
+classDiagram
+    %% Database Model
+    class Event {
+        -Integer event_id
+        -String name_event
+        -String date
+        -String time
+        -String location
+        -Integer attendance_capacity
+        -Integer confirmed_attendance
+        -Integer creator_id
+    }
+
+    %% Pydantic Schemas (DTOs)
+    class EventCreate {
+        <<pydantic>>
+        -String name_event
+        -String date
+        -String time
+        -String location
+        -Integer attendance_capacity
+        -Integer creator_id
+    }
+
+    class EventResponse {
+        <<pydantic>>
+        -Integer event_id
+        -String name_event
+        -String date
+        -String time
+        -String location
+        -Integer attendance_capacity
+        -Integer confirmed_attendance
+        -Integer creator_id
+    }
+
+    %% Database & Session
+    class Database {
+        -Engine engine$
+        -sessionmaker SessionLocal$
+        -DeclarativeBase Base$
+    }
+
+    class SessionLocal {
+        <<sessionmaker>>
+        creates Session instances
+    }
+
+    %% CRUD Layer
+    class CRUD {
+        +create_event(Session, EventCreate) Event$
+        +get_events_by_user(Session, int) List~Event~$
+        +get_event_by_id(Session, int) List~Event~$
+        +delete_event(Session, int) Event$
+    }
+
+    %% FastAPI Router
+    class EventsRouter {
+        -APIRouter router
+        +create_event(EventCreate, Session) EventResponse
+        +get_user_events(int, Session) List~EventResponse~
+        +delete_event(int, Session) Dict
+        +share_event(int) Dict
+        +get_event(int, Session) Dict
+    }
+
+    class get_db {
+        <<dependency>>
+        yields Session instances from SessionLocal
+    }
+
+    %% Relationships
+    EventsRouter --> CRUD : calls
+    EventsRouter --> get_db : depends on
+    EventsRouter --> EventCreate : accepts
+    EventsRouter --> EventResponse : returns
+    CRUD --> Event : queries/creates
+    CRUD --> Database : uses
+    get_db --> SessionLocal : creates from
+    Database --> SessionLocal : provides
