@@ -19,10 +19,10 @@ class Message:
     Base structure for messages
     '''
     def __init__(self, to, subject, etype):
-          self.to = to
-          self.subject = subject
-          self.type = etype
-    
+        self.to = to
+        self.subject = subject
+        self.type = etype
+
     def to_dict(self):
         return self.__dict__
 
