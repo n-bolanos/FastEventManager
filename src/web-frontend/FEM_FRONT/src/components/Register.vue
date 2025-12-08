@@ -3,7 +3,7 @@ import Check from "../icons/IconCheck.vue"
 import Cross from "../icons/IconCross.vue"
 const props = defineProps({
     id: {
-        type: Number,
+        type: String,
         default: 0
     },
     name: {

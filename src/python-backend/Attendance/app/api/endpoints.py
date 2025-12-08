@@ -64,14 +64,14 @@ async def get_attendances(event_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/check/document/{document_id}/event/{event_id}", response_model=CheckAttendanceResponse, status_code=status.HTTP_200_OK)
 async def check_confirmed(
     document_id: str,
-    event_assistance_id: int,
+    event_id: int,
     db: AsyncSession = Depends(get_db)
 ):
     '''
     Check if a person with a certain id is confirmed for a determined event
     '''
     service = AttendanceService()
-    return await service.check_confirmed(document_id, event_assistance_id, db)
+    return await service.check_confirmed(document_id, event_id, db)
 
 @router.put("/waitlist/switch/id/{document}/event/{event_id}", status_code=status.HTTP_202_ACCEPTED)
 async def switch_waitlist_status(document: str, event_id: int, event_name:str, date:str, location:str, db: AsyncSession = Depends(get_db)):

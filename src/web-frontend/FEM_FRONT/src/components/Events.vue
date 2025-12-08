@@ -61,11 +61,11 @@ onBeforeMount(
                 <Register
                     class="mb-2"
                     v-for="person in attendances"
-                    :key="person.attendanceID"
-                    :id="person.attendanceID"
-                    :name="person.nameAttendance"
-                    :email="person.emailAttendance"
-                    :contact="person.contactNumber"
+                    :key="person.doc_id"
+                    :id="person.doc_id"
+                    :name="person.name"
+                    :email="person.email"
+                    :contact="person.contact_number"
                     :waitlist="person.waitlist"
                 />
             </div>
