@@ -62,8 +62,8 @@ class AttendanceService:
         Return a list of attendances that match the given event_id
         '''
         rows = await DbInteract.get_attendance_by_event(event_id, db)
-
-        return AttendanceListResponse(data=rows)
+        dto_list = [row.to_dto() for row in rows]
+        return AttendanceListResponse(data=dto_list)
 
     async def check_confirmed(self, doc_id: str, event_id: int, db):
         '''

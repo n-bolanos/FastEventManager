@@ -4,6 +4,7 @@ Attendance model
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean, UniqueConstraint, Index
 from app.db.database import Base
+from app.api.dtos import AttendanceDTO
 
 
 class Attendance(Base):
@@ -33,3 +34,17 @@ class Attendance(Base):
 
     def __repr__(self) -> str:
         return f"<Attendance(id={self.attendance_id}, name={self.name}, email={self.email})>"
+
+    def to_dto(self):
+        '''
+        Transform the orm model into an actual response DTO
+        
+        '''
+        return AttendanceDTO(
+            name=self.name,
+            email=self.email,
+            contact_number=self.contact_number,
+            doc_id=self.doc_id,
+            waitlist=self.waitlist,
+            event_assistance_id=self.event_assistance_id
+        )
