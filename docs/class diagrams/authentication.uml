@@ -1,0 +1,137 @@
+classDiagram
+    %% Entities
+    class User {
+        -long Id
+        -String name
+        -String username
+        -String email
+        -String passwordHash
+    }
+
+    %% Request/Response DTOs
+    class LoginRequest {
+        -String identifier
+        -String password
+    }
+    
+    class LoginResponse {
+        -String accessToken
+        -String refreshToken
+        -String userId
+    }
+    
+    class RegisterRequest {
+        -String name
+        -String username
+        -String email
+        -String password
+    }
+    
+    class UserInfoRequest {
+        -Integer id
+    }
+    
+    class UserInfoResponse {
+        -String email
+        -String name
+    }
+    
+    class RefreshRequest {
+        -String refreshToken
+    }
+    
+    class RefreshResponse {
+        -boolean refreshed
+        -String message
+    }
+
+    %% Services
+    class AuthService {
+        -UserRepository userRepository
+        -JwtUtil jwtUtil
+        -List~CredentialStrategy~ credentialStrategies
+        -BCryptPasswordEncoder passwordEncoder
+        -EmailKafkaProducer producer
+        +register(RegisterRequest) void
+        +login(LoginRequest) LoginResponse
+        +getUserInfo(UserInfoRequest) UserInfoResponse
+        +getUserInfoById(Integer) UserInfoResponse
+        +notifyUser(String, String) void
+        +refresh(String) RefreshResponse
+    }
+
+    class AuthController {
+        -AuthService authService
+        +register(RegisterRequest) ResponseEntity
+        +login(LoginRequest) ResponseEntity~LoginResponse~
+        +userinfo(Integer) ResponseEntity~UserInfoResponse~
+        +refresh(RefreshRequest) ResponseEntity~RefreshResponse~
+        #handleIllegalArgument(IllegalArgumentException) ResponseEntity
+    }
+
+    class JwtUtil {
+        -Algorithm algorithm
+        -long expirySecondsAccess
+        -long expirySecondsRefresh
+        +generateToken(String) String
+        +generateRefreshToken(String) String
+        +isExpired(String) boolean
+        +extractType(String) String
+        +verify(String) Optional~DecodedJWT~
+    }
+
+    %% Strategy Pattern
+    class CredentialStrategy {
+        <<interface>>
+        +supports(LoginRequest) boolean*
+        +authenticate(LoginRequest) Optional~User~*
+    }
+
+    class UsernameCredentialStrategy {
+        -UserRepository userRepository
+        -BCryptPasswordEncoder passwordEncoder
+        +supports(LoginRequest) boolean
+        +authenticate(LoginRequest) Optional~User~
+    }
+
+    class EmailCredentialStrategy {
+        -UserRepository userRepository
+        -BCryptPasswordEncoder passwordEncoder
+        +supports(LoginRequest) boolean
+        +authenticate(LoginRequest) Optional~User~
+    }
+
+    %% Repository & Kafka
+    class UserRepository {
+        <<interface>>
+        +findByEmail(String) Optional~User~*
+        +existsByEmail(String) boolean*
+        +findById(Integer) Optional~User~*
+        +existsById(Integer) boolean*
+        +findByUsername(String) Optional~User~*
+        +existsByUsername(String) boolean*
+    }
+
+    class EmailKafkaProducer {
+        -KafkaTemplate~String, EmailRequest~ kafkaTemplate
+        -String topic
+        +sendEmail(EmailRequest) void
+    }
+
+    %% Relationships
+    AuthController --> AuthService : uses
+    AuthService --> UserRepository : queries
+    AuthService --> JwtUtil : uses
+    AuthService --> CredentialStrategy : delegates to
+    AuthService --> EmailKafkaProducer : publishes
+    AuthService --> LoginRequest : processes
+    AuthService --> LoginResponse : returns
+    AuthService --> RegisterRequest : processes
+    AuthService --> RefreshRequest : processes
+    AuthService --> RefreshResponse : returns
+    AuthService --> UserInfoRequest : processes
+    AuthService --> UserInfoResponse : returns
+    UsernameCredentialStrategy ..|> CredentialStrategy : implements
+    EmailCredentialStrategy ..|> CredentialStrategy : implements
+    CredentialStrategy --> User : returns
+    UserRepository --> User : manages
