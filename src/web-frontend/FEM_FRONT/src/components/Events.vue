@@ -3,8 +3,8 @@ import singleEvent from "./SingleEvent.vue"
 import Register  from "./Register.vue"
 import RechargeIcon from "../icons/IconRecharge.vue"
 import { ref, onBeforeMount } from "vue"
-import { get_events } from "../assets/js/Event.js"
-import { get_attendances } from "@/assets/js/Attendance.js"
+import { get_events } from "../js/Event.js"
+import { get_attendances } from "@/js/Attendance.js"
 import { useAuthStore } from "@/stores/auth"
 
 const creatorId = useAuthStore().user_id

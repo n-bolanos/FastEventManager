@@ -3,7 +3,7 @@ import { ref, onBeforeMount } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
-import { update_or_create, confirm, update } from '@/assets/js/Attendance.js'
+import { update_or_create, confirm, update } from '@/js/Attendance.js'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast();

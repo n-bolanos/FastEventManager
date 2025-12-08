@@ -1,6 +1,6 @@
 <script setup>
 import ShareIcon from "../icons/IconShare.vue"
-import { delete_events, get_share_link } from "../assets/js/Event.js"
+import { delete_events, get_share_link } from "../js/Event.js"
 const props = defineProps({
     id: {
         type: Number,
