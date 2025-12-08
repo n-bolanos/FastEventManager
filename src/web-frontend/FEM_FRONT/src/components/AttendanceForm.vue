@@ -70,9 +70,9 @@ onBeforeMount(async() => {
         isUpdating.value = false;
     } else {
         isUpdating.value = true;
-        number.value = ans[0].contactNumber;
-        name.value = ans[0].nameAttendance;
-        email.value = ans[0].emailAttendance;
+        number.value = ans.contact_number;
+        name.value = ans.name;
+        email.value = ans.email;
     }
   })
 </script>
