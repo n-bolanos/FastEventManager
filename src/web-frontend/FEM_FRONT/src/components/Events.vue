@@ -33,7 +33,7 @@ onBeforeMount(
 
 </script>
 <template>
-    <div class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
+    <div v-if="!isShowing" class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
     <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-90">
         <singleEvent @details="switchAttendances" @deletion="recharge" 
         class= "mb-4" v-for="event in events" :key="event.event_id"  
