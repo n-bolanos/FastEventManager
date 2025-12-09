@@ -1,7 +1,9 @@
 '''
 Handles all the interactions with database using the ORM
 '''
+from fastapi import HTTPException
 from sqlalchemy import select, update, func
+from sqlalchemy.exc import IntegrityError
 from app.models.attendance_model import Attendance
 
 class DbInteract:
@@ -20,16 +22,40 @@ class DbInteract:
         return result.scalar_one()
 
     @staticmethod
-    async def create_attendance(body, db):
+    async def create_attendance(data, db):
         '''
         Create new attendance in db
         '''
-        new_attendance = Attendance(**body)
-        db.add(new_attendance)
-        await db.commit()
-        await db.refresh(new_attendance)
+        att = Attendance(**data)
+        db.add(att)
 
-        return new_attendance
+        try:
+            await db.commit()
+            await db.refresh(att)
+            return att
+
+        except IntegrityError as e:
+            await db.rollback()
+
+            msg = e.orig.args[1]  # MySQL error message
+
+            if "uq_email_event" in msg:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Email already registered for this event."
+                ) from e
+
+            if "uq_document_event" in msg:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Document ID already registered for this event."
+                ) from e
+
+            # Default DB error
+            raise HTTPException(
+                status_code=500,
+                detail="Database integrity error."
+            ) from e
 
     @staticmethod
     async def update_attendance(document_id: str, event_id: int, body, db):

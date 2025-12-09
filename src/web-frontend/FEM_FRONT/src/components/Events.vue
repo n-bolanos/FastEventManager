@@ -27,7 +27,7 @@ const events = ref([])
 async function recharge(){
     events.value = await get_events(creatorId)
     if (actual_event.value != 0){
-        attendances.value = await get_attendances(id)
+        attendances.value = await get_attendances(actual_event.value)
     }
 }
 onBeforeMount(
