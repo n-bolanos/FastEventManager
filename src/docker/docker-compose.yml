@@ -53,6 +53,7 @@ services:
     environment:
       KAFKA_ADDRESS: "kafka:9092"
       LOGIN_SVC_URL: "http://login:8070"
+      DATABASE_URL: "mysql+aiomysql://APP_USERNAME:USER_PWD@att:3308/attendance_db"
 
     ports:
       - "8000:8000"
@@ -64,6 +65,23 @@ services:
     networks:
       - mail
       - backend
+      - att
+
+  mysql_att:
+    image: mysql:8.0
+    container_name: att_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: YOUR_ROOT_PWD
+      MYSQL_DATABASE: attendance_db
+      MYSQL_USER: APP_USERNAME
+      MYSQL_PASSWORD: USER_PWD
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data_att:/var/lib/mysql
+    networks:
+      - att
 
   event_manager:
 
@@ -188,6 +206,7 @@ services:
 volumes:
   kafka_data:
   mysql_data:
+  mysql_data_att:
 
 networks:
   mail:

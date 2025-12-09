@@ -1,15 +1,17 @@
 services:
-  mysql:
+  mysql_att:
     image: mysql:8.0
     container_name: att_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: authdb
+      MYSQL_ROOT_PASSWORD: YOUR_ROOT_PWD
+      MYSQL_DATABASE: attendance_db
+      MYSQL_USER: APP_USERNAME
+      MYSQL_PASSWORD: USER_PWD
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_att:/var/lib/mysql
 
 volumes:
-  mysql_data:
+  mysql_data_att:
