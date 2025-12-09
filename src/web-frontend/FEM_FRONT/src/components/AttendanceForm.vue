@@ -66,7 +66,7 @@ async function submitAns(){
 
 onBeforeMount(async() => {
     const ans = await update_or_create(props.person_id, props.event_id);
-    if (ans.length === 0){
+    if (!ans){
         isUpdating.value = false;
     } else {
         isUpdating.value = true;

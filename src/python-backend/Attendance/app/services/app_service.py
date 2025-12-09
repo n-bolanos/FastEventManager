@@ -70,10 +70,10 @@ class AttendanceService:
         Check if the person has already confirmed his attendance
         '''
         row = await DbInteract.get_attendance_by_id(doc_id, event_id, db)
-        row = row.to_dto()
+
         if row is None:
             return CheckAttendanceResponse(response=False)
-
+        row = row.to_dto()
         return CheckAttendanceResponse(response=row)
 
     async def switch_waitlist(

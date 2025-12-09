@@ -9,11 +9,13 @@ import { useAuthStore } from "@/stores/auth"
 
 const creatorId = useAuthStore().user_id
 const isShowing = ref(false)
+const actual_event = ref(0)
 
 async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
         attendances.value = await get_attendances(id)
+        actual_event.value = id
     }else{
         attendances.value = []
     }
@@ -24,6 +26,9 @@ const events = ref([])
 
 async function recharge(){
     events.value = await get_events(creatorId)
+    if (actual_event.value != 0){
+        attendances.value = await get_attendances(id)
+    }
 }
 onBeforeMount(
   async() => {events.value = await get_events(creatorId)
@@ -33,7 +38,7 @@ onBeforeMount(
 
 </script>
 <template>
-    <div v-if="!isShowing" class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
+    <div  class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
     <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-90">
         <singleEvent @details="switchAttendances" @deletion="recharge" 
         class= "mb-4" v-for="event in events" :key="event.event_id"  
@@ -67,6 +72,7 @@ onBeforeMount(
                     :email="person.email"
                     :contact="person.contact_number"
                     :waitlist="person.waitlist"
+                    :event_id=actual_event
                 />
             </div>
         </div>

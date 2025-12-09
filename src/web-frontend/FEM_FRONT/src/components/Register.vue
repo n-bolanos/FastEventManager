@@ -6,6 +6,10 @@ const props = defineProps({
         type: String,
         default: 0
     },
+    event_id: {
+        type: Number,
+        default: 0
+    },
     name: {
         type: String,
         default: " "
@@ -24,6 +28,7 @@ const props = defineProps({
     }
 
 })
+
 </script>
 <template>
     <div
