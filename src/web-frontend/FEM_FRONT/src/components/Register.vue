@@ -1,4 +1,5 @@
 <script setup>
+import { switch_att } from "@/js/Attendance";
 import Check from "../icons/IconCheck.vue"
 import Cross from "../icons/IconCross.vue"
 const props = defineProps({
@@ -29,13 +30,22 @@ const props = defineProps({
 
 })
 
+const emit = defineEmits([
+  'update'
+])
+
+async function switch_() {
+    await switch_att(props.id, props.event_id)
+    emit('update')
+}
 </script>
 <template>
-    <div
-        class="grid grid-cols-4 text-xl w-full [&_label]:truncate [&_label]:overflow-hidden [&_label]:whitespace-nowrap [&_label]:px-2"
+    <div @click="switch_ "
+        class="grid rounded-2xl grid-cols-4 text-xl w-full [&_label]:truncate hover:cursor-pointer
+        [&_label]:overflow-hidden [&_label]:whitespace-nowrap [&_label]:px-2  [&_label]:hover:cursor-pointer"
         :class="{ 'bg-red-500': waitlist, 'bg-neutral-50': !waitlist }"
     >
-        <label class="truncate text-left">{{ name }}</label>
+        <label class="truncate text-left ">{{ props.name }}</label>
         <label class="truncate text-left">{{ email }}</label>
         <label class="truncate text-left">{{ contact }}</label>
         <div class="flex items-center justify-center">

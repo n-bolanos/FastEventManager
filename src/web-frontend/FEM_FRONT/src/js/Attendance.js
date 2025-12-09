@@ -52,3 +52,20 @@ export async function get_attendances(id) {
         throw error;
     }
 }
+
+export async function switch_att(doc_id, event_id) {
+    try {
+        const event = await confirm_event(event_id)
+        const values = event.response[0]
+
+        await api_gateway.put(`/attendance/waitlist/switch/id/${doc_id}/event/${event_id}`, {},
+            { params: {
+                event_name: values.name_event,
+                date: values.date,
+                location: values.location
+            } });
+    } catch (error) {
+        console.error("Fetch error:", error);
+        throw error;
+    }
+}

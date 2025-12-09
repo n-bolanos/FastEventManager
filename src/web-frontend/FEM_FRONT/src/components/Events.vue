@@ -64,6 +64,8 @@ onBeforeMount(
             </div>
             <div class="flex flex-col w-full mt-3">
                 <Register
+                    @update="async( )=> {
+                        attendances = await get_attendances(actual_event)}"
                     class="mb-2"
                     v-for="person in attendances"
                     :key="person.doc_id"

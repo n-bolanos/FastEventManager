@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "aiomysql>=0.3.2",
     "aiosqlite>=0.21.0",
+    "cryptography>=46.0.3",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.121.2",
     "kafka-python>=2.2.15",
