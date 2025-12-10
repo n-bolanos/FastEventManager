@@ -1,0 +1,214 @@
+asyncapi: '2.6.0'
+
+info:
+  title: Global Event-Driven Architecture - Pub/Sub System
+  version: '0.1.0'
+  description: |
+    Global AsyncAPI specification describing all Kafka-based asynchronous
+    communication between microservices:
+    - Authentication microservice
+    - Attendance microservice
+    - Email notification microservice
+
+servers:
+  local:
+    url: localhost:9092
+    protocol: kafka
+  docker:
+    url: kafka:9092
+    protocol: kafka
+
+channels:
+  email.send:
+    description: Topic used to request emails to be sent.
+    publish:
+      bindings:
+        kafka:
+          groupId: null
+      message:
+        oneOf:
+          - $ref: '#/components/messages/SuccessfulRegisterMessage'
+          - $ref: '#/components/messages/PasswordResetMessage'
+          - $ref: '#/components/messages/EventConfirmationMessage'
+          - $ref: '#/components/messages/WaitlistNotificationMessage'
+          - $ref: '#/components/messages/WaitlistPromotionMessage'
+          - $ref: '#/components/messages/CapacityReachedMessage'
+      x-producers:
+        - Authentication Service
+        - Confirmation Service
+
+    subscribe:
+      bindings:
+        kafka:
+          groupId: "email-service"
+      message:
+        oneOf:
+          - $ref: '#/components/messages/SuccessfulRegisterMessage'
+          - $ref: '#/components/messages/PasswordResetMessage'
+          - $ref: '#/components/messages/EventConfirmationMessage'
+          - $ref: '#/components/messages/WaitlistNotificationMessage'
+          - $ref: '#/components/messages/WaitlistPromotionMessage'
+          - $ref: '#/components/messages/CapacityReachedMessage'
+      x-consumers:
+        - Email Notification Service
+
+components:
+  messages:
+
+    # SUCCESSFUL_REGISTER
+    SuccessfulRegisterMessage:
+      name: SuccessfulRegisterMessage
+      payload:
+        $ref: '#/components/schemas/SuccessfulRegisterPayload'
+
+    # PASSWORD_RESET
+    PasswordResetMessage:
+      name: PasswordResetMessage
+      payload:
+        $ref: '#/components/schemas/PasswordResetPayload'
+
+    # EVENT_CONFIRMATION
+    EventConfirmationMessage:
+      name: EventConfirmationMessage
+      payload:
+        $ref: '#/components/schemas/EventConfirmationPayload'
+
+    # WAITLIST_NOTIFICATION
+    WaitlistNotificationMessage:
+      name: WaitlistNotificationMessage
+      payload:
+        $ref: '#/components/schemas/WaitlistNotificationPayload'
+
+    # WAITLIST_PROMOTION
+    WaitlistPromotionMessage:
+      name: WaitlistPromotionMessage
+      payload:
+        $ref: '#/components/schemas/WaitlistPromotionPayload'
+
+    # CAPACITY_REACHED
+    CapacityReachedMessage:
+      name: CapacityReachedMessage
+      payload:
+        $ref: '#/components/schemas/CapacityReachedPayload'
+
+  schemas:
+
+    # Base email structure shared by all messages
+    BaseEmailPayload:
+      type: object
+      required:
+        - to
+        - subject
+        - type
+        - params
+      properties:
+        to: { type: string }
+        subject: { type: string }
+        type: { type: string }
+        params: { type: object }
+
+    # SUCCESSFUL_REGISTER
+    SuccessfulRegisterPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["SUCCESSFUL_REGISTER"]
+            params:
+              $ref: '#/components/schemas/SuccessfulRegisterParams'
+
+    SuccessfulRegisterParams:
+      type: object
+      properties:
+        name: { type: string }
+
+    # PASSWORD_RESET
+    PasswordResetPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["PASSWORD_RESET"]
+            params:
+              $ref: '#/components/schemas/PasswordResetParams'
+
+    PasswordResetParams:
+      type: object
+      properties:
+        name: { type: string }
+        token: { type: string }
+
+    # EVENT_CONFIRMATION
+    EventConfirmationPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["EVENT_CONFIRMATION"]
+            params:
+              $ref: '#/components/schemas/EventConfirmationParams'
+
+    EventConfirmationParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        eventDate: { type: string }
+        location: { type: string }
+
+    # WAITLIST_NOTIFICATION
+    WaitlistNotificationPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["WAITLIST_NOTIFICATION"]
+            params:
+              $ref: '#/components/schemas/WaitlistNotificationParams'
+
+    WaitlistNotificationParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+
+    # WAITLIST_PROMOTION
+    WaitlistPromotionPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["WAITLIST_PROMOTION"]
+            params:
+              $ref: '#/components/schemas/WaitlistPromotionParams'
+
+    WaitlistPromotionParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        eventDate: { type: string }
+        location: { type: string }
+
+    # CAPACITY_REACHED
+    CapacityReachedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["CAPACITY_REACHED"]
+            params:
+              $ref: '#/components/schemas/CapacityReachedParams'
+
+    CapacityReachedParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        capacity: { type: number }

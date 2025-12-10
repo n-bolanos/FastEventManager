@@ -31,9 +31,7 @@ services:
       ATTENDANCE_SVC_URL: http://attendance:8000
       EVENT_SVC_URL: http://event_manager:8020
       LOGIN_SVC_URL: http://login:8070
-      EMAIL_SVC_URL: http://kafka:8090
       FRONT_URL: http://frontend:8050
-      REFRESH_TOKEN_COOKIE_NAME: "refreshToken"
 
     ports:
       - "8010:8010"
@@ -179,6 +177,7 @@ services:
 
     networks:
       - auth
+      - mail
       - backend
 
   email:

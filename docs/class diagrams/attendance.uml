@@ -1,0 +1,90 @@
+classDiagram
+    %% Database Model
+    class Attendance {
+        -int attendanceID
+        -String nameAttendance
+        -String emailAttendance
+        -String contactNumber
+        -int documentID
+        -boolean waitlist
+        -int eventAssistanceID
+        +__repr__() String
+    }
+
+    %% Database & Session
+    class Database {
+        -AsyncEngine _engine$
+        -sessionmaker _session_factory$
+        +get_engine() AsyncEngine$
+        +get_session_factory() sessionmaker$
+        +init_models() void$
+        +dispose_engine() void$
+    }
+
+    class Base {
+        <<sqlalchemy_base>>
+        declarative base for ORM models
+    }
+
+    %% Service Layer
+    class AttendanceService {
+        <<pydantic>>
+        -String name
+        -EmailStr email
+        -String contact_number
+        -String doc_id
+        -boolean waitlist
+        -int event_assistance_id
+        +confirmAttendance() Attendance$
+        +updateAttendance() Attendance$
+        +getAttendanceByID(int, int) List~Attendance~$
+        +switchWaitListStatus(int, int) List~Attendance~$
+        +getNumberOfAttendances(int) int$
+        +getAttendanceByEvent(int) List~Attendance~$
+        +jsonify(Attendance) Dict$
+    }
+
+    %% Kafka Message Hierarchy
+    class Message {
+        <<base>>
+        -String to
+        -String subject
+        -String type
+        +to_dict() Dict
+    }
+
+    class Capacity {
+        -Map~String, Object~ params
+        +params includes: name, eventName, capacity
+    }
+
+    class Confirmation {
+        -Map~String, Object~ params
+        +params includes: name, eventName, eventDate, location
+    }
+
+    class WaitList {
+        -Map~String, Object~ params
+        +params includes: name, eventName
+    }
+
+    class WaitListPromotion {
+        -Map~String, Object~ params
+        +params includes: name, eventName, eventDate, location
+    }
+
+    class KafkaProducer {
+        -KafkaProducer producer$
+        +send_notification(Dict) void$
+    }
+
+    %% Relationships
+    AttendanceService --> Attendance : creates/queries
+    AttendanceService --> Database : uses
+    Database --> Base : extends
+    Attendance --> Base : extends
+    KafkaProducer --> Message : sends
+    Capacity --|> Message : inherits
+    Confirmation --|> Message : inherits
+    WaitList --|> Message : inherits
+    WaitListPromotion --|> Message : inherits

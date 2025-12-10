@@ -45,7 +45,7 @@ def is_token_expired(token: str) -> bool:
 async def refresh_access_token(refresh_token: str) -> str | None:
     """Call auth service to refresh the access token."""
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 f"{LOGIN_SVC}/auth/refresh",
                 json={"refreshToken": refresh_token}
@@ -110,18 +110,67 @@ async def validate_and_refresh_middleware(request: Request, call_next):
 #GENERIC PROXY FUNCTION
 
 async def proxy_request(method: str, url: str, request: Request):
-    async with httpx.AsyncClient() as client:
-        body = await request.json() if method in ["POST", "PUT"] else None
-        response = await client.request(
-            method,
-            url,
-            json=body,
-            params=dict(request.query_params)
+    """Proxy request to backend services with proper error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Get body for POST/PUT requests
+            body = None
+            if method in ["POST", "PUT"]:
+                try:
+                    body = await request.json()
+                except:
+                    pass
+            
+            # Prepare headers (pass through auth if available)
+            headers = {}
+            if hasattr(request.state, "access_token"):
+                headers["Authorization"] = request.state.access_token
+            
+            # Make the request
+            print(f"🔄 Proxying {method} to {url}")
+            print(f"   Body: {body}")
+            print(f"   Params: {dict(request.query_params)}")
+            
+            response = await client.request(
+                method,
+                url,
+                json=body,
+                params=dict(request.query_params),
+                headers=headers
+            )
+            
+            print(f"   Response status: {response.status_code}")
+            
+            # Try to parse JSON response
+            try:
+                return JSONResponse(
+                    status_code=response.status_code, 
+                    content=response.json()
+                )
+            except json.JSONDecodeError:
+                return JSONResponse(
+                    status_code=response.status_code, 
+                    content={"message": response.text}
+                )
+                
+    except httpx.ConnectError as e:
+        print(f"❌ Connection error to {url}: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={"detail": f"Service unavailable: {url}", "error": str(e)}
         )
-        try:
-            return JSONResponse(status_code=response.status_code, content=response.json())
-        except json.JSONDecodeError:
-            return JSONResponse(status_code=response.status_code, content={"message": response.text})
+    except httpx.TimeoutException as e:
+        print(f"⏱ Timeout connecting to {url}: {e}")
+        return JSONResponse(
+            status_code=504,
+            content={"detail": f"Service timeout: {url}", "error": str(e)}
+        )
+    except Exception as e:
+        print(f"❌ Unexpected error proxying to {url}: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
 
 #ATTENDANCE ROUTES
 
@@ -198,19 +247,26 @@ async def auth_refresh(request: Request):
     if not refresh_token:
         return JSONResponse({"detail": "No refresh token"}, status_code=401)
     
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{LOGIN_SVC}/auth/refresh",
-            json={"refreshToken": refresh_token}
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                f"{LOGIN_SVC}/auth/refresh",
+                json={"refreshToken": refresh_token}
+            )
+        
+        if resp.status_code != 200:
+            return JSONResponse({"detail": "Refresh failed"}, status_code=401)
+        
+        data = resp.json()
+        new_access_token = data.get("accessToken")
+        
+        return JSONResponse(
+            {"token": new_access_token, "code": "SUCCESFUL_REFRESH"}, 
+            status_code=200
         )
-    
-    if resp.status_code != 200:
-        return JSONResponse({"detail": "Refresh failed"}, status_code=401)
-    
-    data = resp.json()
-    new_access_token = data.get("accessToken")
-    
-    return JSONResponse({"token": new_access_token, "code": "SUCCESFUL_REFRESH"}, status_code=200)
+    except Exception as e:
+        print(f"❌ Error in auth refresh: {e}")
+        return JSONResponse({"detail": "Refresh failed", "error": str(e)}, status_code=500)
 
 @app.post("/auth/userinfo")
 async def auth_userinfo(request: Request):

@@ -1,0 +1,67 @@
+classDiagram
+    %% DTOs
+    class EmailRequest {
+        -String to
+        -String subject
+        -EmailType type
+        -Map~String, Object~ params
+    }
+
+    class EmailResponse {
+        -boolean success
+        -String messageId
+        -String error
+    }
+
+    %% Enums & Errors
+    class EmailType {
+        <<enumeration>>
+        SUCCESSFUL_REGISTER
+        PASSWORD_RESET
+        EVENT_CONFIRMATION
+        WAITLIST_NOTIFICATION
+        WAITLIST_PROMOTION
+        CAPACITY_REACHED
+    }
+
+    class TemplateError {
+        <<exception>>
+        TemplateError(String message)
+        TemplateError(String message, Throwable cause)
+    }
+
+    %% Services
+    class EmailService {
+        -JavaMailSender mailSender
+        -Map~EmailType, String~ TEMPLATE_MAP
+        +sendEmail(EmailRequest) EmailResponse
+        #renderTemplate(EmailType, Map~String, Object~) String
+    }
+
+    class TemplateEngine {
+        -Map~String, String~ TEMPLATE_CACHE$
+        +render(String, Map~String, Object~) String$
+        -loadTemplate(String) String$
+    }
+
+    %% Controllers
+    class EmailController {
+        -EmailService emailService
+        +sendEmail(EmailRequest) EmailResponse
+    }
+
+    class EmailKafkaListener {
+        -EmailService emailService
+        -ObjectMapper objectMapper
+        +consume(String) void
+    }
+
+    %% Relationships
+    EmailController --> EmailService : calls
+    EmailKafkaListener --> EmailService : delegates to
+    EmailService --> TemplateEngine : uses
+    EmailService --> EmailType : references
+    EmailService --> TemplateError : throws
+    EmailService --> EmailRequest : processes
+    EmailService --> EmailResponse : returns
+    TemplateEngine --> TemplateError : throws

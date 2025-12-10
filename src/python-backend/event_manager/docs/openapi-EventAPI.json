@@ -1,0 +1,366 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "Event Manager Microservice",
+		"version": "0.1.0"
+	},
+	"paths": {
+		"/events/": {
+			"post": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Create Event",
+				"operationId": "create_event_events__post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/EventCreate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EventResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/events/user/{user_id}": {
+			"get": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Get User Events",
+				"operationId": "get_user_events_events_user__user_id__get",
+				"parameters": [
+					{
+						"name": "user_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "User Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/EventResponse"
+									},
+									"title": "Response Get User Events Events User  User Id  Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/events/{event_id}": {
+			"delete": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Delete Event",
+				"operationId": "delete_event_events__event_id__delete",
+				"parameters": [
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Get Event",
+				"operationId": "get_event_events__event_id__get",
+				"parameters": [
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/events/{event_id}/share": {
+			"get": {
+				"tags": [
+					"Events"
+				],
+				"summary": "Share Event",
+				"operationId": "share_event_events__event_id__share_get",
+				"parameters": [
+					{
+						"name": "event_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"title": "Event Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/": {
+			"get": {
+				"summary": "Home",
+				"operationId": "home__get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"EventCreate": {
+				"properties": {
+					"name_event": {
+						"type": "string",
+						"title": "Name Event"
+					},
+					"date": {
+						"type": "string",
+						"title": "Date"
+					},
+					"time": {
+						"type": "string",
+						"title": "Time"
+					},
+					"location": {
+						"type": "string",
+						"title": "Location"
+					},
+					"attendance_capacity": {
+						"type": "integer",
+						"title": "Attendance Capacity"
+					},
+					"creator_id": {
+						"type": "integer",
+						"title": "Creator Id"
+					}
+				},
+				"type": "object",
+				"required": [
+					"name_event",
+					"date",
+					"time",
+					"location",
+					"attendance_capacity",
+					"creator_id"
+				],
+				"title": "EventCreate"
+			},
+			"EventResponse": {
+				"properties": {
+					"event_id": {
+						"type": "integer",
+						"title": "Event Id"
+					},
+					"name_event": {
+						"type": "string",
+						"title": "Name Event"
+					},
+					"date": {
+						"type": "string",
+						"title": "Date"
+					},
+					"time": {
+						"type": "string",
+						"title": "Time"
+					},
+					"location": {
+						"type": "string",
+						"title": "Location"
+					},
+					"attendance_capacity": {
+						"type": "integer",
+						"title": "Attendance Capacity"
+					},
+					"confirmed_attendance": {
+						"type": "integer",
+						"title": "Confirmed Attendance"
+					},
+					"creator_id": {
+						"type": "integer",
+						"title": "Creator Id"
+					}
+				},
+				"type": "object",
+				"required": [
+					"event_id",
+					"name_event",
+					"date",
+					"time",
+					"location",
+					"attendance_capacity",
+					"confirmed_attendance",
+					"creator_id"
+				],
+				"title": "EventResponse"
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": {
+							"$ref": "#/components/schemas/ValidationError"
+						},
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "integer"
+								}
+							]
+						},
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": {
+						"type": "string",
+						"title": "Message"
+					},
+					"type": {
+						"type": "string",
+						"title": "Error Type"
+					}
+				},
+				"type": "object",
+				"required": [
+					"loc",
+					"msg",
+					"type"
+				],
+				"title": "ValidationError"
+			}
+		}
+	}
+}

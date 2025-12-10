@@ -1,16 +1,8 @@
-/**
- * Class containing test for the  functionality of the service in 
- * the authentication microservice. It includes register, login and
- * getting the suer information by their id.
- * 
- */
 package com.fem.authentication.service;
 
 import com.fem.authentication.dto.*;
 import com.fem.authentication.entity.User;
 import com.fem.authentication.repository.UserRepository;
-import com.fem.authentication.service.AuthService;
-import com.fem.authentication.service.strategy.CredentialStrategy;
 import com.fem.authentication.service.strategy.UsernameCredentialStrategy;
 import com.fem.authentication.service.strategy.EmailCredentialStrategy;
 import com.fem.authentication.util.JwtUtil;
@@ -18,6 +10,7 @@ import com.fem.authentication.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,25 +33,37 @@ public class AuthServiceTest {
     @Mock
     private EmailCredentialStrategy strategy2;
 
-    @InjectMocks
+    @Mock
+    private EmailKafkaProducer emailKafkaProducer;
+
     private AuthService authService;
     
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
+        
+        // Crear la instancia manualmente con el constructor
         authService = new AuthService(
                 userRepository,
                 jwtUtil,
                 List.of(strategy1, strategy2)
         );
+        
+        // Inyectar el mock del producer usando reflexión
+        ReflectionTestUtils.setField(authService, "producer", emailKafkaProducer);
+        
+        // Configurar el mock para que no haga nada cuando se llame
+        doNothing().when(emailKafkaProducer).sendEmail(any(EmailRequest.class));
     }
 
     //-------------------------- REGISTER TESTS ------------------------------
+    @SuppressWarnings("null")
     @Test
     void testRegisterSuccess() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");
 
         when(userRepository.existsByEmail(req.email())).thenReturn(false);
+        when(userRepository.existsByUsername(req.username())).thenReturn(false);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         authService.register(req);
@@ -68,13 +73,18 @@ public class AuthServiceTest {
         assertEquals(req.name(), saved.getName());
         assertEquals(req.username(), saved.getUsername());
         assertEquals(req.email(), saved.getEmail());
+        
+        // Verificar que se envió el email
+        verify(emailKafkaProducer, times(1)).sendEmail(any(EmailRequest.class));
     }
 
-        @Test
+    @SuppressWarnings("null")
+    @Test
     void testPasswrodHashing() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");
 
         when(userRepository.existsByEmail(req.email())).thenReturn(false);
+        when(userRepository.existsByUsername(req.username())).thenReturn(false);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         authService.register(req);
@@ -85,6 +95,7 @@ public class AuthServiceTest {
         assertTrue(saved.getPasswordHash().startsWith("$2a"));
     }
 
+    @SuppressWarnings("null")
     @Test
     void testRegisterEmailExists() {
         RegisterRequest req = new RegisterRequest("Test1", "tst", "testing@mail.com", "12345");
@@ -98,6 +109,7 @@ public class AuthServiceTest {
 
         assertEquals("Email already used", ex.getMessage());
         verify(userRepository, never()).save(any());
+        verify(emailKafkaProducer, never()).sendEmail(any(EmailRequest.class));
     }
 
     //-------------------------- LOGIN TESTS ------------------------------

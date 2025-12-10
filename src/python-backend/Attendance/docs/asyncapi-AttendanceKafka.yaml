@@ -1,0 +1,184 @@
+asyncapi: '2.6.0'
+info:
+  title: Attendance microservice - Event API
+  version: '0.1.0'
+  description: |
+    This microservice publishes email notifications related to event confirmation,
+    waitlist updates, and capacity alerts. All messages are published to the
+    `email.send` Kafka topic.
+
+servers:
+  local:
+    url: localhost:9092
+    protocol: kafka
+  docker:
+    url: kafka:9092
+    protocol: kafka
+
+channels:
+  email.send:
+    publish:
+      summary: Publishes email notification requests to be processed by the Email Service.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/EventConfirmationMessage'
+          - $ref: '#/components/messages/WaitlistNotificationMessage'
+          - $ref: '#/components/messages/WaitlistPromotionMessage'
+          - $ref: '#/components/messages/CapacityReachedMessage'
+
+components:
+  messages:
+
+    EventConfirmationMessage:
+      name: EventConfirmationMessage
+      payload:
+        $ref: '#/components/schemas/EventConfirmationPayload'
+      examples:
+        - payload:
+            to: "user@example.com"
+            subject: "You're confirmed!"
+            type: "EVENT_CONFIRMATION"
+            params:
+              name: "John Doe"
+              eventName: "Tech Summit"
+              eventDate: "2025-05-22"
+              location: "Main Auditorium"
+
+    WaitlistNotificationMessage:
+      name: WaitlistNotificationMessage
+      payload:
+        $ref: '#/components/schemas/WaitlistNotificationPayload'
+      examples:
+        - payload:
+            to: "user@example.com"
+            subject: "You're on the waitlist"
+            type: "WAITLIST_NOTIFICATION"
+            params:
+              name: "John Doe"
+              eventName: "Tech Summit"
+
+    WaitlistPromotionMessage:
+      name: WaitlistPromotionMessage
+      payload:
+        $ref: '#/components/schemas/WaitlistPromotionPayload'
+      examples:
+        - payload:
+            to: "user@example.com"
+            subject: "A spot opened for you!"
+            type: "WAITLIST_PROMOTION"
+            params:
+              name: "John Doe"
+              eventName: "Tech Summit"
+              eventDate: "2025-06-01"
+              location: "Conference Room B"
+
+    CapacityReachedMessage:
+      name: CapacityReachedMessage
+      payload:
+        $ref: '#/components/schemas/CapacityReachedPayload'
+      examples:
+        - payload:
+            to: "admin@example.com"
+            subject: "Event capacity reached"
+            type: "CAPACITY_REACHED"
+            params:
+              name: "Admin"
+              eventName: "Tech Summit"
+              capacity: 150
+
+  schemas:
+
+    # Shared base email structure
+    BaseEmailPayload:
+      type: object
+      required:
+        - to
+        - subject
+        - type
+        - params
+      properties:
+        to:
+          type: string
+          description: Recipient email address
+        subject:
+          type: string
+          description: Email subject line
+        type:
+          type: string
+          description: Email template type
+        params:
+          type: object
+          description: Dynamic parameters depending on the email type
+
+    # EVENT_CONFIRMATION
+    EventConfirmationPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["EVENT_CONFIRMATION"]
+            params:
+              $ref: '#/components/schemas/EventConfirmationParams'
+
+    EventConfirmationParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        eventDate: { type: string }
+        location: { type: string }
+
+    # WAITLIST_NOTIFICATION
+    WaitlistNotificationPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["WAITLIST_NOTIFICATION"]
+            params:
+              $ref: '#/components/schemas/WaitlistNotificationParams'
+
+    WaitlistNotificationParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+
+    # WAITLIST_PROMOTION
+    WaitlistPromotionPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["WAITLIST_PROMOTION"]
+            params:
+              $ref: '#/components/schemas/WaitlistPromotionParams'
+
+    WaitlistPromotionParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        eventDate: { type: string }
+        location: { type: string }
+
+    # CAPACITY_REACHED
+    CapacityReachedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEmailPayload'
+        - type: object
+          properties:
+            type:
+              enum: ["CAPACITY_REACHED"]
+            params:
+              $ref: '#/components/schemas/CapacityReachedParams'
+
+    CapacityReachedParams:
+      type: object
+      properties:
+        name: { type: string }
+        eventName: { type: string }
+        capacity: { type: number }

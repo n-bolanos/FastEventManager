@@ -17,6 +17,7 @@ public class EmailKafkaProducer {
         this.topic = topic;
     }
 
+    @SuppressWarnings("null")
     public void sendEmail(EmailRequest request) {
         kafkaTemplate.send(topic, request);
     }

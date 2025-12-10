@@ -5,7 +5,7 @@ This service handles email composition, rendering, and delivery for all email no
 ## Overview
 
 The Email service provides two primary interfaces:
-- **REST API** — Synchronous email sending via HTTP
+- **REST API** — Synchronous email sending via HTTP, for future system robustness enhancing
 - **Kafka Consumer** — Asynchronous email processing from event streams
 
 All email types are pre-configured with HTML templates that support dynamic parameter injection.
