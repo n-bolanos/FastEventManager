@@ -25,11 +25,6 @@ jobs:
         cd src/python-backend
         pip install -r requirements.txt
 
-    - name: Install Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install docker-compose-plugin
-
 
     - name: Start services with Docker Compose
       run: |
