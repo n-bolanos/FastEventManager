@@ -13,7 +13,7 @@ export async function confirm_event(event_id) {
 
 export async function update_or_create(person_id, event_id){
     try {
-        const response = await api_gateway.get(`/attendance/check/document/${person_id}/event/${event_id}`);        
+        const response = await api_gateway.get(`/attendance/check/document/${person_id}/event/${event_id}`);      
         return response.data.response;
     } catch (error) {
         console.error("Fetch error:", error);
@@ -47,6 +47,23 @@ export async function get_attendances(id) {
     try {
         const response = await api_gateway.get(`/attendance/event/${id}`);         
         return response.data.data;
+    } catch (error) {
+        console.error("Fetch error:", error);
+        throw error;
+    }
+}
+
+export async function switch_att(doc_id, event_id) {
+    try {
+        const event = await confirm_event(event_id)
+        const values = event.response[0]
+
+        await api_gateway.put(`/attendance/waitlist/switch/id/${doc_id}/event/${event_id}`, {},
+            { params: {
+                event_name: values.name_event,
+                date: values.date,
+                location: values.location
+            } });
     } catch (error) {
         console.error("Fetch error:", error);
         throw error;

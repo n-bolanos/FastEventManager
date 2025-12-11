@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import {userRegister} from '../assets/js/Authentication.js'
+import {userRegister} from '../js/Authentication.js'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast();

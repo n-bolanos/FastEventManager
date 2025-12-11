@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PwdIcon from "../icons/IconPwd.vue"
-import {checkCredentials} from "../assets/js/Authentication.js"
+import {checkCredentials} from "../js/Authentication.js"
 import { useAuthStore } from '@/stores/auth'
 const username = ref('')
 const password = ref('')

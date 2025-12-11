@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import {create_event} from "../assets/js/Event.js"
+import {create_event} from "../js/Event.js"
 import { useAuthStore } from "@/stores/auth"
 
 const creatorId = useAuthStore().user_id

@@ -1,68 +1,93 @@
 '''
-Contains the Base and Database classes for the SQLALchemy setup.
-'''
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-import os
-from dotenv import load_dotenv
-from pathlib import Path
+Database configuration for MySQL using SQLAlchemy Async.
 
-env_path = Path(__file__).parent / ".env"
+This module initializes:
+- Async engine
+- Session factory
+- Declarative base
+- Startup table creation
+'''
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+# Load .env from project root
+env_path = Path(__file__).resolve().parents[2] / ".env"
 load_dotenv(env_path)
 
-DATABASE_URL = "sqlite+aiosqlite:///./app/db/attendance.db"
+# Example: mysql+aiomysql://user:password@localhost:3306/attendance_db
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set.")
 
 class Base(DeclarativeBase):
-    '''
-    Base class for sqlalchemy models
-    '''
+    """Base class for all SQLAlchemy models"""
     pass
 
+
 class Database:
-    '''
-    Retrives a unique engine and session factory.
-    '''
+    """
+    Manages a single SQLAlchemy async engine and session factory.
+    """
+
     _engine: AsyncEngine | None = None
-    _session_factory = None
+    _session_factory: sessionmaker | None = None
 
     @classmethod
-    def get_engine(cls):
+    def get_engine(cls) -> AsyncEngine:
+        """
+        Returns a singleton async engine.
+        """
         if cls._engine is None:
-            cls._engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
+            cls._engine = create_async_engine(
+                DATABASE_URL,
+                echo=False,          # Change to True for debugging
+                pool_pre_ping=True,  # Avoid stale connections
+            )
         return cls._engine
 
     @classmethod
     def get_session_factory(cls):
+        """
+        Returns a lazy-loaded async session factory.
+        """
         if cls._session_factory is None:
             cls._session_factory = sessionmaker(
                 bind=cls.get_engine(),
                 class_=AsyncSession,
-                expire_on_commit=False
+                expire_on_commit=False,
             )
         return cls._session_factory
 
     @classmethod
     async def init_models(cls):
         """
-        Create tables if needed
+        Creates database tables at startup.
         """
         engine = cls.get_engine()
         async with engine.begin() as conn:
-            # run_sync ejecuta la versión síncrona create_all bajo el hood
             await conn.run_sync(Base.metadata.create_all)
 
     @classmethod
     async def dispose_engine(cls):
         """
-        Close the engine in shutdown.
+        Properly closes the engine at shutdown.
         """
         if cls._engine is not None:
             await cls._engine.dispose()
             cls._engine = None
             cls._session_factory = None
-    
-# Function used by services to get a session
+
+
+# FastAPI dependency
 async def get_db():
+    """
+    Dependency for retrieving a SQLAlchemy async session.
+    """
     SessionLocal = Database.get_session_factory()
     async with SessionLocal() as session:
         yield session

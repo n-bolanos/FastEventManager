@@ -3,16 +3,16 @@ Main entry poit for the Attendance microservice
 '''
 from fastapi import FastAPI
 from uvicorn import run
-from app.api.attendance_end import router as attendance_router
+from app.api.endpoints import router as attendance_router
 from contextlib import asynccontextmanager
-from app.db.Database import Database
-import app.models.Attendance # Load the model so it associated table can be created
+from app.db.database import Database
+import app.models.attendance_model # Load the model so it associated table can be created
 
 def start_app():
     '''
     Start the FastAPI app
     '''
-    
+
     run(
         "main:app",
         host="0.0.0.0",

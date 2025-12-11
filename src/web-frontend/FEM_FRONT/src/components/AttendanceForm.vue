@@ -3,7 +3,7 @@ import { ref, onBeforeMount } from 'vue'
 import UserIcon from "../icons/IconUser.vue"
 import PhoneIcon from "../icons/IconPhone.vue"
 import EmailIcon from "../icons/IconMail.vue"
-import { update_or_create, confirm, update } from '@/assets/js/Attendance.js'
+import { update_or_create, confirm, update } from '@/js/Attendance.js'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast();
@@ -66,13 +66,13 @@ async function submitAns(){
 
 onBeforeMount(async() => {
     const ans = await update_or_create(props.person_id, props.event_id);
-    if (ans.length === 0){
+    if (!ans){
         isUpdating.value = false;
     } else {
         isUpdating.value = true;
-        number.value = ans[0].contactNumber;
-        name.value = ans[0].nameAttendance;
-        email.value = ans[0].emailAttendance;
+        number.value = ans.contact_number;
+        name.value = ans.name;
+        email.value = ans.email;
     }
   })
 </script>

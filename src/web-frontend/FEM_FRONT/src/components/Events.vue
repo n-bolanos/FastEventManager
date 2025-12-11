@@ -3,17 +3,19 @@ import singleEvent from "./SingleEvent.vue"
 import Register  from "./Register.vue"
 import RechargeIcon from "../icons/IconRecharge.vue"
 import { ref, onBeforeMount } from "vue"
-import { get_events } from "../assets/js/Event.js"
-import { get_attendances } from "@/assets/js/Attendance.js"
+import { get_events } from "../js/Event.js"
+import { get_attendances } from "@/js/Attendance.js"
 import { useAuthStore } from "@/stores/auth"
 
 const creatorId = useAuthStore().user_id
 const isShowing = ref(false)
+const actual_event = ref(0)
 
 async function switchAttendances(id = -1){
     isShowing.value = !isShowing.value
     if (id !== -1){
         attendances.value = await get_attendances(id)
+        actual_event.value = id
     }else{
         attendances.value = []
     }
@@ -24,6 +26,9 @@ const events = ref([])
 
 async function recharge(){
     events.value = await get_events(creatorId)
+    if (actual_event.value != 0){
+        attendances.value = await get_attendances(actual_event.value)
+    }
 }
 onBeforeMount(
   async() => {events.value = await get_events(creatorId)
@@ -33,7 +38,7 @@ onBeforeMount(
 
 </script>
 <template>
-    <div class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
+    <div  class="ml-2 mt-1"><button @click=recharge class="hover:cursor-pointer"><RechargeIcon class="hover:animate-spin"/></button></div>
     <div v-if="!isShowing" class="flex flex-wrap justify-between w-full m-5 overflow-y-auto max-h-90">
         <singleEvent @details="switchAttendances" @deletion="recharge" 
         class= "mb-4" v-for="event in events" :key="event.event_id"  
@@ -59,14 +64,17 @@ onBeforeMount(
             </div>
             <div class="flex flex-col w-full mt-3">
                 <Register
+                    @update="async( )=> {
+                        attendances = await get_attendances(actual_event)}"
                     class="mb-2"
                     v-for="person in attendances"
-                    :key="person.attendanceID"
-                    :id="person.attendanceID"
-                    :name="person.nameAttendance"
-                    :email="person.emailAttendance"
-                    :contact="person.contactNumber"
+                    :key="person.doc_id"
+                    :id="person.doc_id"
+                    :name="person.name"
+                    :email="person.email"
+                    :contact="person.contact_number"
                     :waitlist="person.waitlist"
+                    :event_id=actual_event
                 />
             </div>
         </div>

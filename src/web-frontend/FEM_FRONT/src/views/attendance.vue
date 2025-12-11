@@ -3,7 +3,7 @@ import { ref, onBeforeMount } from 'vue'
 import NavBar from "../components/NavBar.vue"
 import IdForm from "../components/Document.vue"
 import AttendanceForm from "../components/AttendanceForm.vue"
-import {confirm_event} from "../assets/js/Attendance.js"
+import {confirm_event} from "../js/Attendance.js"
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
