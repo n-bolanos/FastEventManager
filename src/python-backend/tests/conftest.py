@@ -5,7 +5,7 @@ import httpx
 import time
 import asyncio
 
-# Permite importar api_gateway correctamente
+# Correct api_gateway import
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api_gateway.main import app

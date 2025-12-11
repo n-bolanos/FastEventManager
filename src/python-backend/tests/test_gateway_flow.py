@@ -1,7 +1,7 @@
 import pytest
 
-def test_kafka_alive(client):
-    """Test that the gateway and Kafka infrastructure are working."""
+def test_gateway_alive(client):
+    """Test that the gateway working."""
     r = client.get("/health")
     
     if r.status_code != 200:

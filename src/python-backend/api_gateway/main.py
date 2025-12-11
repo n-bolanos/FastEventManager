@@ -127,7 +127,7 @@ async def proxy_request(method: str, url: str, request: Request):
                 headers["Authorization"] = request.state.access_token
             
             # Make the request
-            print(f"🔄 Proxying {method} to {url}")
+            print(f"Proxying {method} to {url}")
             print(f"   Body: {body}")
             print(f"   Params: {dict(request.query_params)}")
             
@@ -154,19 +154,19 @@ async def proxy_request(method: str, url: str, request: Request):
                 )
                 
     except httpx.ConnectError as e:
-        print(f"❌ Connection error to {url}: {e}")
+        print(f"Connection error to {url}: {e}")
         return JSONResponse(
             status_code=503,
             content={"detail": f"Service unavailable: {url}", "error": str(e)}
         )
     except httpx.TimeoutException as e:
-        print(f"⏱ Timeout connecting to {url}: {e}")
+        print(f"Timeout connecting to {url}: {e}")
         return JSONResponse(
             status_code=504,
             content={"detail": f"Service timeout: {url}", "error": str(e)}
         )
     except Exception as e:
-        print(f"❌ Unexpected error proxying to {url}: {e}")
+        print(f"Unexpected error proxying to {url}: {e}")
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
