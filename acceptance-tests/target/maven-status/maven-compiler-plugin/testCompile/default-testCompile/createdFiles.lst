@@ -2,9 +2,13 @@ steps\LoginSteps.class
 RunCucumberTest.class
 steps\AuthSteps.class
 steps\CommonSteps.class
+steps\EventCreationSteps.class
 steps\TestContext.class
 steps\LoginRequest.class
+steps\DeleteEventSteps.class
 steps\RegistrationSteps.class
+steps\ShareEventSteps$ClipboardMock.class
 steps\ViewGuestsSteps.class
 steps\ResetPasswordSteps.class
+steps\ShareEventSteps.class
 steps\RegisterRequest.class
