@@ -1,17 +1,18 @@
 classDiagram
     %% Database Model
     class Attendance {
-        -int attendanceID
-        -String nameAttendance
-        -String emailAttendance
-        -String contactNumber
-        -int documentID
+        -int attendance_id
+        -String name
+        -String email
+        -String contact_number
+        -String doc_id
         -boolean waitlist
-        -int eventAssistanceID
+        -int event_assistance_id
         +__repr__() String
+        +to_dto() AttendanceDTO
     }
 
-    %% Database & Session
+    %% Database & Session Management
     class Database {
         -AsyncEngine _engine$
         -sessionmaker _session_factory$
@@ -22,26 +23,68 @@ classDiagram
     }
 
     class Base {
-        <<sqlalchemy_base>>
-        declarative base for ORM models
+        <<sqlalchemy_declarative>>
+        declarative base for all ORM models
     }
 
-    %% Service Layer
-    class AttendanceService {
-        <<pydantic>>
+    class get_db {
+        <<fastapi_dependency>>
+        async yields AsyncSession$
+    }
+
+    %% DTOs
+    class AttendanceDTO {
         -String name
         -EmailStr email
         -String contact_number
         -String doc_id
         -boolean waitlist
         -int event_assistance_id
-        +confirmAttendance() Attendance$
-        +updateAttendance() Attendance$
-        +getAttendanceByID(int, int) List~Attendance~$
-        +switchWaitListStatus(int, int) List~Attendance~$
-        +getNumberOfAttendances(int) int$
-        +getAttendanceByEvent(int) List~Attendance~$
-        +jsonify(Attendance) Dict$
+    }
+
+    class AttendanceResponse {
+        -AttendanceDTO attendance
+    }
+
+    class AttendanceListResponse {
+        -List~AttendanceDTO~ data
+    }
+
+    class CheckAttendanceResponse {
+        -AttendanceDTO|boolean response
+    }
+
+    %% CRUD Layer
+    class DbInteract {
+        +create_attendance(data, db) Attendance$
+        +update_attendance(doc_id, event_id, body, db) Attendance$
+        +get_attendance_by_event(event_id, db) List~Attendance~$
+        +get_attendance_by_id(doc_id, event_id, db) Attendance$
+        +switch_waitlist(doc_id, event_id, db) Attendance$
+        +get_current_attendances(event_id, db) int$
+    }
+
+    %% Service Layer
+    class AttendanceService {
+        +confirm_event(body, capacity, event_name, date, location, creator_id, db) Attendance
+        +update_att(body, db) Attendance
+        +get_attendance_by_event(event_id, db) AttendanceListResponse
+        +check_confirmed(doc_id, event_id, db) CheckAttendanceResponse
+        +switch_waitlist(doc_id, event_id, event_name, date, location, db) Attendance
+        -_notify_confirmation(body, event_name, date, location) void
+        -_notify_capacity(event_name, capacity, creator_id) void
+        -_notify_waitlist(email, name, event_name) void
+        -_notify_promotion(email, name, event_name, date, location) void
+    }
+
+    %% API Layer
+    class Endpoints {
+        +check_status() Dict
+        +confirm_attendance(body, capacity, event_name, date, location, creator_id, db) AttendanceResponse
+        +update_attendance(body, db) AttendanceResponse
+        +get_attendances(event_id, db) AttendanceListResponse
+        +check_confirmed(document_id, event_id, db) CheckAttendanceResponse
+        +switch_waitlist_status(document, event_id, event_name, date, location, db) void
     }
 
     %% Kafka Message Hierarchy
@@ -50,41 +93,66 @@ classDiagram
         -String to
         -String subject
         -String type
+        +__init__(to, subject, etype)
         +to_dict() Dict
     }
 
     class Capacity {
         -Map~String, Object~ params
-        +params includes: name, eventName, capacity
     }
 
     class Confirmation {
         -Map~String, Object~ params
-        +params includes: name, eventName, eventDate, location
     }
 
     class WaitList {
         -Map~String, Object~ params
-        +params includes: name, eventName
     }
 
     class WaitListPromotion {
         -Map~String, Object~ params
-        +params includes: name, eventName, eventDate, location
     }
 
     class KafkaProducer {
         -KafkaProducer producer$
-        +send_notification(Dict) void$
+        +send_notification(message) void$
     }
 
-    %% Relationships
-    AttendanceService --> Attendance : creates/queries
-    AttendanceService --> Database : uses
-    Database --> Base : extends
+    %% Relationships - Data Layer
     Attendance --> Base : extends
+    Database --> Base : provides
+    get_db --> Database : uses
+    
+    %% Relationships - CRUD Layer
+    DbInteract --> Attendance : queries/creates
+    DbInteract --> Database : uses
+    
+    %% Relationships - DTO Layer
+    Attendance --> AttendanceDTO : converts via to_dto()
+    AttendanceResponse --> AttendanceDTO : contains
+    AttendanceListResponse --> AttendanceDTO : contains
+    CheckAttendanceResponse --> AttendanceDTO : contains
+    
+    %% Relationships - Service Layer
+    AttendanceService --> DbInteract : calls
+    AttendanceService --> AttendanceDTO : processes
+    AttendanceService --> KafkaProducer : publishes via
+    
+    %% Relationships - API Layer
+    Endpoints --> AttendanceService : uses
+    Endpoints --> get_db : depends on
+    Endpoints --> AttendanceDTO : accepts/returns
+    Endpoints --> AttendanceResponse : returns
+    Endpoints --> AttendanceListResponse : returns
+    Endpoints --> CheckAttendanceResponse : returns
+    
+    %% Relationships - Kafka Message Hierarchy
     KafkaProducer --> Message : sends
     Capacity --|> Message : inherits
     Confirmation --|> Message : inherits
     WaitList --|> Message : inherits
     WaitListPromotion --|> Message : inherits
+    AttendanceService --> Capacity : creates
+    AttendanceService --> Confirmation : creates
+    AttendanceService --> WaitList : creates
+    AttendanceService --> WaitListPromotion : creates

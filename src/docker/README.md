@@ -2,7 +2,7 @@
 
 Run the whole app using the following command.
 ```
-docker compose --project-name "fem" up --build
+docker compose --project-name "FEM" up --build
 ```
 
 

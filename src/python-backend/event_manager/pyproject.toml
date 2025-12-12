@@ -1,10 +1,12 @@
 [project]
 name = "event-manager"
 version = "0.1.0"
-description = "Add your description here"
+description = "FEM's Event Manager Microservice"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.122.0",
+    "pytest>=9.0.2",
     "sqlalchemy>=2.0.44",
+    "uvicorn>=0.38.0",
 ]

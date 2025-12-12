@@ -59,6 +59,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      mysql_att:
+        condition: service_healthy
 
     networks:
       - mail
@@ -66,18 +68,30 @@ services:
       - att
 
   mysql_att:
+
     image: mysql:8.0
     container_name: att_mysql
     restart: always
+    
     environment:
       MYSQL_ROOT_PASSWORD: YOUR_ROOT_PWD
       MYSQL_DATABASE: attendance_db
       MYSQL_USER: APP_USERNAME
       MYSQL_PASSWORD: USER_PWD
+
     ports:
       - "3308:3306"
+
     volumes:
       - mysql_data_att:/var/lib/mysql
+    
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pYOUR_ROOT_PWD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
     networks:
       - att
 
@@ -104,7 +118,7 @@ services:
       - "9092:9092"
     
     volumes:
-      - ./kafka/config/server.properties:/opt/kafka/config/server.properties
+      - ./kafka/config:/opt/kafka/config
       - kafka_data:/var/lib/kafka/data
     
     command:
@@ -211,4 +225,5 @@ networks:
   mail:
   backend:
   auth:
+  att:
   frontend:
