@@ -1,0 +1,188 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # -------------------------------
+  # 1. Python Unit Tests
+  # -------------------------------
+  python-unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+        cache: "pip"
+
+    - name: Install dependencies
+      run: |
+        cd src/python-backend
+        pip install -r requirements.txt
+
+    - name: Run Python unit tests
+      run: |
+        cd src/python-backend
+        pytest -v
+
+
+  # -------------------------------
+  # 2. Java Unit Tests
+  # -------------------------------
+  java-unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Run Java unit tests
+      run: |
+        cd src/java-backend
+        mvn -B test
+
+
+  # -------------------------------
+  # 3. Integration Tests (Docker)
+  # -------------------------------
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [python-unit-tests, java-unit-tests]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Enable Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose-plugin
+
+    - name: Start minimal integration environment
+      run: |
+        cd src/docker
+        docker compose -f docker-compose.integration.yml up -d
+
+    - name: Wait for service readiness
+      run: |
+        for i in {1..30}; do
+          if curl -s http://localhost:8000/health > /dev/null; then
+            echo "Services are healthy!"
+            exit 0
+          fi
+          echo "Waiting for services..."
+          sleep 3
+        done
+        echo "Services failed to become ready"
+        exit 1
+
+    - name: Run integration tests
+      run: |
+        cd src/python-backend
+        pytest tests/integration -v
+
+    - name: Shutdown integration environment
+      if: always()
+      run: |
+        cd src/docker
+        docker compose -f docker-compose.integration.yml down
+
+    - name: Collect logs on failure
+      if: failure()
+      run: docker logs $(docker ps -q) || true
+
+
+  # -------------------------------
+  # 4. Acceptance Tests (Full System)
+  # -------------------------------
+  acceptance-tests:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Enable Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose-plugin
+
+    - name: Start full system
+      run: |
+        cd src/docker
+        docker compose up -d
+
+    - name: Wait for API Gateway readiness
+      run: |
+        for i in {1..40}; do
+          if curl -s http://localhost:8080/health > /dev/null; then
+            echo "Gateway is healthy!"
+            exit 0
+          fi
+          echo "Waiting for API Gateway..."
+          sleep 3
+        done
+        echo "API Gateway did not become ready"
+        exit 1
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Run Cucumber acceptance tests
+      run: |
+        cd acceptance-tests
+        mvn -B test
+
+    - name: Shutdown full system
+      if: always()
+      run: |
+        cd src/docker
+        docker compose down
+
+    - name: Collect logs on failure
+      if: failure()
+      run: docker logs $(docker ps -aq) || true
+
+
+  # -------------------------------
+  # (Optional) 5. Build & Push Docker Images
+  # -------------------------------
+  # docker-build:
+  #   runs-on: ubuntu-latest
+  #   needs: acceptance-tests
+  #
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #
+  #   - name: Log in to Docker Hub
+  #     uses: docker/login-action@v2
+  #     with:
+  #       username: ${{ secrets.DOCKER_HUB_USER }}
+  #       password: ${{ secrets.DOCKER_HUB_TOKEN }}
+  #
+  #   - name: Build images
+  #     run: |
+  #       cd src/docker
+  #       docker compose build
+  #
+  #   - name: Push images
+  #     run: |
+  #       cd src/docker
+  #       docker compose push

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MAIL_PASSWORD: ozhynfomzxkbykjs
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
       TESTCONTAINERS_RYUK_DISABLED: true
       TESTCONTAINERS_REUSE_ENABLE: true
 
@@ -55,7 +55,7 @@ jobs:
     - name: Run Java microservice tests
       run: |
         cd src/java-backend
-        for service in authentication; do
+        for service in authentication email; do
           echo "Running tests for $service"
           cd "$service"
           chmod +x gradlew
