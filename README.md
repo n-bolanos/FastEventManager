@@ -19,7 +19,7 @@ FastEventManager (or just FEM) is a full-stack microservices application for eve
 ### Start Infrastructure & Services
 ```
    cd src/docker
-   docker-compose up -d
+   docker compose --project-name "fem" up
 ```
 Executing the lines above will start:
 - **MySQL** (port 3306) — user database
