@@ -1,0 +1,69 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+push_images:
+  needs: compose
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build & Push Python images
+      run: |
+        for service in event_manager attendance api_gateway; do
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/$service:latest"
+          echo "Building $IMAGE"
+          docker build -t $IMAGE ./src/python-backend/$service
+          docker push $IMAGE
+        done
+
+    - name: Build & Push Java images
+      run: |
+        for service in authentication email; do
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/$service:latest"
+          echo "Building $IMAGE"
+          docker build -t $IMAGE ./src/java-backend/$service
+          docker push $IMAGE
+        done
+
+    - name: Build & Push frontend
+      run: |
+        IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest"
+        docker build -t $IMAGE ./web-frontend/FEM_FRONT
+        docker push $IMAGE
+
+
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            git pull
+            docker compose pull
+            docker compose up -d

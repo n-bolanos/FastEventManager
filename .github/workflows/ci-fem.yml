@@ -72,7 +72,7 @@ jobs:
         wait_for_health() {
           local cid=$1
           echo "Waiting for $cid health..."
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             status=$(docker inspect --format='{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "none")
             if [ "$status" = "healthy" ]; then
               echo "$cid is healthy"
@@ -82,7 +82,7 @@ jobs:
               echo "$cid is UNHEALTHY"
               return 1
             fi
-            sleep 2
+            sleep 5
           done
           echo "Timed out waiting for health on $cid"
           return 1
@@ -190,24 +190,67 @@ jobs:
         cd acceptance-tests
         echo "Acceptance tests are not ready"
 
-    # Test Docker Deployment
-    - name: Run FEM Containers
+    - name: Shutdown local deployment
       run: |
+        echo "Stopping Python services..."
+        for svc in src/python-backend/event_manager src/python-backend/attendance src/python-backend/api_gateway; do
+          if [ -f "$svc/service.pid" ]; then
+            pid=$(cat "$svc/service.pid")
+            echo "Killing $svc (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            rm "$svc/service.pid"
+          fi
+        done
+
+        echo "Stopping Java services..."
+        for svc in src/java-backend/authentication src/java-backend/email; do
+          if [ -f "$svc/boot.pid" ]; then
+            pid=$(cat "$svc/boot.pid")
+            echo "Killing $svc (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            rm "$svc/boot.pid"
+          fi
+        done
+
         for svc in src/docker/kafka src/docker/attendance_db src/docker/user_db; do
           echo "Shutting down $svc"
           cd "$svc"
 
-          docker compose down
+          docker compose down -v
 
           cd - >/dev/null
         done
 
+        echo "All backend services stopped."
+    
+  compose:
+    # needs: tests
+    runs-on: ubuntu-latest
+
+    env:
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+    
+    services:
+      docker:
+        image: docker:dind
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Debug file paths
+      run: |
+        pwd | echo
+
+    # Test Docker Deployment
+    - name: Run FEM Containers
+      run: |
         cd src/docker
-        docker compose up -d
+        docker compose --project-name "fem" up -d
 
     # CleanUp
     - name: Shutdown
       if: always()
       run: |
         cd src/docker
-        docker compose down
+        docker compose down -v
