@@ -24,7 +24,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Python Back-End Unit (and Integration?) Tests
+    # Python Back-End Unit and Integration Tests
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -45,7 +45,7 @@ jobs:
           cd ..
         done
 
-    # Java Back-End Unit (and Integration?) Tests
+    # Java Back-End Unit and Integration Tests
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
@@ -62,12 +62,148 @@ jobs:
           ./gradlew test --no-daemon || exit 1
           cd ..
         done
+    
+    # Local Deployment
+    - name: Execute the local servers with their docker resources
+      run: |
+        # -------------------------------
+        # Function: wait for container health
+        # -------------------------------
+        wait_for_health() {
+          local cid=$1
+          echo "Waiting for $cid health..."
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "none")
+            if [ "$status" = "healthy" ]; then
+              echo "$cid is healthy"
+              return 0
+            fi
+            if [ "$status" = "unhealthy" ]; then
+              echo "$cid is UNHEALTHY"
+              return 1
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for health on $cid"
+          return 1
+        }
+
+        # -------------------------------
+        # Bring up docker resources
+        # -------------------------------
+        for svc in src/docker/kafka src/docker/attendance_db src/docker/user_db; do
+          if [ -d "$svc" ]; then
+            echo "Bringing up $svc"
+            cd "$svc"
+
+            docker compose up -d
+            docker compose ps
+
+            echo "Waiting for healthchecks..."
+
+            cids=$(docker compose ps -q)
+            for cid in $cids; do
+              wait_for_health "$cid" || exit 1
+            done
+
+            cd - >/dev/null
+          else
+            echo "Warning: $svc not found, skipping"
+          fi
+        done
+
+        # -------------------------------
+        # Start Python services
+        # -------------------------------
+        echo "Starting python services"
+        for svc in src/python-backend/event_manager src/python-backend/attendance src/python-backend/api_gateway; do
+          if [ -d "$svc" ]; then
+            echo "Starting $svc"
+            cd "$svc"
+            nohup uv run main.py &> service.log &
+            echo $! > service.pid
+            cd - >/dev/null
+          else
+            echo "Warning: $svc not found, skipping"
+          fi
+        done
+
+        # -------------------------------
+        # Java Services
+        # -------------------------------
+        echo "Starting Java services"
+        for svc in src/java-backend/authentication src/java-backend/email; do
+          if [ -d "$svc" ]; then
+            echo "Starting $svc"
+            cd "$svc"
+            chmod +x gradlew
+            nohup ./gradlew bootRun &> boot.log &
+            echo $! > boot.pid
+
+            echo "Waiting for Spring Boot to start"
+            started=false
+            for i in $(seq 1 60); do
+              if grep -q "Started" boot.log; then
+                echo "$svc started"
+                started=true
+                break
+              fi
+              sleep 5
+            done
+            if [ "$started" != "true" ]; then
+              echo "$svc failed to start"
+              tail -n 200 boot.log
+              exit 1
+            fi
+
+            cd - >/dev/null
+          else
+            echo "Warning: $svc not found, skipping"
+          fi
+        done
+
+        # -------------------------------
+        # Frontend
+        # -------------------------------
+        echo "Starting frontend"
+        if [ -d "web-frontend/FEM_FRONT" ]; then
+          cd web-frontend/FEM_FRONT
+          npm ci
+          nohup npm run dev &> frontend.log &
+          echo $! > frontend.pid
+          cd - >/dev/null
+        else
+          echo "Warning: frontend folder not found, skipping"
+        fi
+
+    # Global Integration Tests
+    - name: Run Global integration tests
+      run: |
+        echo "Running global integration tests..."
+        cd src/integration-global-tests
+        uv run pytest -v || exit 1
 
     # Acceptance Tests
     - name: Run Cucumber acceptance tests
       run: |
+        echo "Running acceptance tests..."
         cd acceptance-tests
         echo "Acceptance tests are not ready"
+
+    # Test Docker Deployment
+    - name: Run FEM Containers
+      run: |
+        for svc in src/docker/kafka src/docker/attendance_db src/docker/user_db; do
+          echo "Shutting down $svc"
+          cd "$svc"
+
+          docker compose down
+
+          cd - >/dev/null
+        done
+
+        cd src/docker
+        docker compose up -d
 
     # CleanUp
     - name: Shutdown

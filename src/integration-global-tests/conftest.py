@@ -1,14 +1,7 @@
-import sys
-import os
 import pytest
 import httpx
 import time
 import asyncio
-
-# Correct api_gateway import
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from api_gateway.main import app
 
 
 @pytest.fixture(scope="session")

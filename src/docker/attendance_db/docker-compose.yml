@@ -13,5 +13,12 @@ services:
     volumes:
       - mysql_data_att:/var/lib/mysql
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pYOUR_ROOT_PWD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   mysql_data_att:
