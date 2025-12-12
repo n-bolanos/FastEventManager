@@ -224,7 +224,6 @@ jobs:
         echo "All backend services stopped."
     
   compose:
-    # needs: tests
     runs-on: ubuntu-latest
 
     env:
@@ -254,3 +253,43 @@ jobs:
       run: |
         cd src/docker
         docker compose down -v
+
+  push_images:
+    needs:
+    - tests
+    - compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Python images
+        run: |
+          for service in event_manager attendance api_gateway; do
+            IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/$service:latest"
+            echo "Building $IMAGE"
+            docker build -t $IMAGE ./src/python-backend/$service
+            docker push $IMAGE
+          done
+
+      - name: Build & Push Java images
+        run: |
+          for service in authentication email; do
+            IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/$service:latest"
+            echo "Building $IMAGE"
+            docker build -t $IMAGE ./src/java-backend/$service
+            docker push $IMAGE
+          done
+
+      - name: Build & Push frontend
+        run: |
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest"
+          docker build -t $IMAGE ./web-frontend/FEM_FRONT
+          docker push $IMAGE
