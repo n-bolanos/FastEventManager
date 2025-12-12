@@ -1,0 +1,77 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+
+    env:
+      MAIL_PASSWORD: ozhynfomzxkbykjs
+      TESTCONTAINERS_RYUK_DISABLED: true
+      TESTCONTAINERS_REUSE_ENABLE: true
+
+    services:
+      docker:
+        image: docker:dind
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Python Back-End Unit (and Integration?) Tests
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Install UV
+      run: |
+        cd src/python-backend
+        pip install uv
+        
+    - name: Run Python service tests
+      run: |
+        cd src/python-backend
+        for service in attendance event_manager; do
+          echo "Running tests for $service"
+          cd "$service"
+          uv run pytest -v || exit 1
+          cd ..
+        done
+
+    # Java Back-End Unit (and Integration?) Tests
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 21
+
+    - name: Run Java microservice tests
+      run: |
+        cd src/java-backend
+        for service in authentication; do
+          echo "Running tests for $service"
+          cd "$service"
+          chmod +x gradlew
+          ./gradlew test --no-daemon || exit 1
+          cd ..
+        done
+
+    # Acceptance Tests
+    - name: Run Cucumber acceptance tests
+      run: |
+        cd acceptance-tests
+        echo "Acceptance tests are not ready"
+
+    # CleanUp
+    - name: Shutdown
+      if: always()
+      run: |
+        cd src/docker
+        docker compose down

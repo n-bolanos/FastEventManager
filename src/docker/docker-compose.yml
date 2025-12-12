@@ -118,7 +118,7 @@ services:
       - "9092:9092"
     
     volumes:
-      - ./kafka/config/server.properties:/opt/kafka/config/server.properties
+      - ./kafka/config:/opt/kafka/config
       - kafka_data:/var/lib/kafka/data
     
     command:

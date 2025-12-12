@@ -27,6 +27,7 @@ class EmailKafkaListenerIntegrationTest {
     @DynamicPropertySource
     static void kafkaProps(DynamicPropertyRegistry registry) {
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        registry.add("spring.kafka.admin.auto-create", () -> true);
     }
 
     @Autowired
