@@ -51,10 +51,7 @@ services:
     environment:
       KAFKA_ADDRESS: "kafka:9092"
       LOGIN_SVC_URL: "http://login:8070"
-      DATABASE_URL: "mysql+aiomysql://APP_USERNAME:USER_PWD@att:3308/attendance_db"
-
-    ports:
-      - "8000:8000"
+      DATABASE_URL: "mysql+aiomysql://APP_USERNAME:USER_PWD@mysql_att:3306/attendance_db"
 
     depends_on:
       kafka:
@@ -62,38 +59,35 @@ services:
       mysql_att:
         condition: service_healthy
 
+    ports:
+      - "8000:8000"
+
     networks:
       - mail
       - backend
       - att
 
   mysql_att:
-
     image: mysql:8.0
     container_name: att_mysql
     restart: always
-    
     environment:
       MYSQL_ROOT_PASSWORD: YOUR_ROOT_PWD
       MYSQL_DATABASE: attendance_db
       MYSQL_USER: APP_USERNAME
       MYSQL_PASSWORD: USER_PWD
-
     ports:
       - "3308:3306"
-
     volumes:
       - mysql_data_att:/var/lib/mysql
-    
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pYOUR_ROOT_PWD"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    
     networks:
       - att
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pYOUR_ROOT_PWD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   event_manager:
 
@@ -133,8 +127,8 @@ services:
       test: ["CMD", "bash", "-c", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 5
+      start_period: 20s
 
     networks:
       - mail
@@ -157,10 +151,10 @@ services:
 
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 15s
     
     networks:
       - auth
@@ -225,5 +219,5 @@ networks:
   mail:
   backend:
   auth:
-  att:
   frontend:
+  att:
