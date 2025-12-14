@@ -166,8 +166,8 @@ jobs:
         # Frontend
         # -------------------------------
         echo "Starting frontend"
-        if [ -d "web-frontend/FEM_FRONT" ]; then
-          cd web-frontend/FEM_FRONT
+        if [ -d "src/web-frontend/FEM_FRONT" ]; then
+          cd src/web-frontend/FEM_FRONT
           npm ci
           nohup npm run dev &> frontend.log &
           echo $! > frontend.pid
@@ -212,6 +212,14 @@ jobs:
           fi
         done
 
+        echo "Stopping Frontend..."
+        if [ -f "src/web-frontend/FEM_FRONT/boot.pid" ]; then
+          pid=$(cat "src/web-frontend/FEM_FRONT/frontend.pid")
+          echo "Killing src/web-frontend/FEM_FRONT (PID: $pid)"
+          kill "$pid" 2>/dev/null || true
+          rm "src/web-frontend/FEM_FRONT/frontend.pid"
+        fi
+
         for svc in src/docker/kafka src/docker/attendance_db src/docker/user_db; do
           echo "Shutting down $svc"
           cd "$svc"
@@ -236,10 +244,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-
-    - name: Debug file paths
-      run: |
-        pwd | echo
 
     # Test Docker Deployment
     - name: Run FEM Containers
