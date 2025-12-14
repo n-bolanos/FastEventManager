@@ -1,0 +1,41 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+            set -e
+
+            cd /home/ubuntu/app
+
+            # Export env vars needed by docker-compose
+            export MAIL_PASSWORD='${{ secrets.MAIL_PASSWORD }}'
+
+            # Pull updated images
+            docker compose pull
+
+            # Recreate containers
+            docker compose -p fem up -d --remove-orphans
+
+            # Optional cleanup
+            docker image prune -f

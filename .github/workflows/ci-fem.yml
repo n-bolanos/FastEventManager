@@ -291,5 +291,5 @@ jobs:
       - name: Build & Push frontend
         run: |
           IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest"
-          docker build -t $IMAGE ./src/web-frontend/FEM_FRONT
+          docker build --build-arg VITE_API_GATEWAY_URL=/api -t $IMAGE ./src/web-frontend/FEM_FRONT
           docker push $IMAGE

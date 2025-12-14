@@ -1,9 +1,15 @@
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from logic.database import SessionLocal
 from logic.schemas import EventCreate, EventResponse
 from logic import crud
+
+load_dotenv()
+
+SERVER_SVC = os.getenv("SERVER_SVC_URL")
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
@@ -35,7 +41,7 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{event_id}/share")
 def share_event(event_id: int):
-    link = f"http://localhost:8050/attendance/{event_id}"
+    link = f"{SERVER_SVC}/attendance/{event_id}"
     return {"share_link": link}
 
 @router.get("/{event_id}")

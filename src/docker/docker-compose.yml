@@ -99,6 +99,9 @@ services:
 
     ports:
       - "8020:8020"
+
+    environment:
+      SERVER_SVC_URL: http://localhost:8050
     
     networks:
       - backend
